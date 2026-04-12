@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Mail, Phone, User, ArrowRight, Sparkles, Zap, Brain, Hexagon, Globe } from "lucide-react";
+import { Mail, Phone, User, ArrowRight, Sparkles, Zap, Brain, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoImg from "@assets/IMG-20260412-WA0110_1776010236262.jpg";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -44,6 +45,13 @@ const projects = [
   }
 ];
 
+function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
 function Home() {
   const { scrollYProgress } = useScroll();
   const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
@@ -62,17 +70,39 @@ function Home() {
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-6 border-b border-white/5 bg-background/50 backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-          <Hexagon className="w-8 h-8 text-primary" />
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 border-b border-white/5 bg-background/50 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <img
+            src={logoImg}
+            alt="Creative Hub Logo"
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/40"
+          />
           <span className="text-xl font-bold tracking-tight">Creative Hub</span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <a href="#projects" className="hover:text-primary transition-colors">Projects</a>
-          <a href="#about" className="hover:text-primary transition-colors">About</a>
-          <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
+          <button
+            onClick={() => scrollToSection("projects")}
+            className="hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
+          >
+            Projects
+          </button>
+          <button
+            onClick={() => scrollToSection("about")}
+            className="hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
+          >
+            About
+          </button>
+          <button
+            onClick={() => scrollToSection("contact")}
+            className="hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
+          >
+            Contact
+          </button>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] border-none">
+        <Button
+          onClick={() => scrollToSection("contact")}
+          className="bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] border-none"
+        >
           Get Started
         </Button>
       </nav>
@@ -80,26 +110,33 @@ function Home() {
       <main className="relative z-10 pt-24">
         {/* Hero Section */}
         <section className="relative min-h-[90vh] flex items-center justify-center px-6 py-20 overflow-hidden">
-          <motion.div 
+          <motion.div
             style={{ y: yHero }}
             className="absolute inset-0 z-0 opacity-40"
           >
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background z-10" />
             <img src="/hero.png" alt="Creative Hub Hero" className="w-full h-full object-cover object-center" />
           </motion.div>
-          
+
           <div className="relative z-10 max-w-5xl mx-auto text-center">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm text-primary text-sm font-medium mb-8 shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+              className="flex flex-col items-center gap-4 mb-8"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Curated by Dharani</span>
+              <img
+                src={logoImg}
+                alt="Creative Hub Logo"
+                className="w-24 h-24 rounded-full object-cover ring-4 ring-primary/40 shadow-[0_0_40px_rgba(168,85,247,0.5)]"
+              />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm text-primary text-sm font-medium shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+                <Sparkles className="w-4 h-4" />
+                <span>Curated by Dharani</span>
+              </div>
             </motion.div>
-            
-            <motion.h1 
+
+            <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
@@ -110,8 +147,8 @@ function Home() {
                 Education
               </span>
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -119,18 +156,27 @@ function Home() {
             >
               We turn ideas into spectacular interactive experiences. Step into our high-end creative studio and discover digital solutions that radiate professionalism and energy.
             </motion.p>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base bg-white text-black hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+              <Button
+                size="lg"
+                onClick={() => scrollToSection("projects")}
+                className="w-full sm:w-auto h-14 px-8 text-base bg-white text-black hover:bg-gray-100 hover:scale-105 transition-all duration-300"
+              >
                 Explore Projects
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base border-white/20 hover:bg-white/5 backdrop-blur-md">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => scrollToSection("contact")}
+                className="w-full sm:w-auto h-14 px-8 text-base border-white/20 hover:bg-white/5 backdrop-blur-md"
+              >
                 Contact Dharani
               </Button>
             </motion.div>
@@ -140,7 +186,7 @@ function Home() {
         {/* Featured Projects */}
         <section id="projects" className="py-32 px-6 relative">
           <div className="max-w-7xl mx-auto">
-            <motion.div 
+            <motion.div
               initial="initial"
               whileInView="animate"
               viewport={{ once: true, margin: "-100px" }}
@@ -159,13 +205,14 @@ function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="group relative rounded-2xl overflow-hidden bg-card border border-white/5 hover:border-primary/50 transition-colors duration-500"
+                  className="group relative rounded-2xl overflow-hidden bg-card border border-white/5 hover:border-primary/50 transition-colors duration-500 cursor-pointer"
+                  onClick={() => scrollToSection("contact")}
                 >
                   <div className="aspect-[4/3] overflow-hidden relative">
                     <div className="absolute inset-0 bg-background/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
-                    <img 
-                      src={project.image} 
-                      alt={project.title} 
+                    <img
+                      src={project.image}
+                      alt={project.title}
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
                     <div className="absolute top-4 left-4 z-20">
@@ -176,7 +223,10 @@ function Home() {
                   </div>
                   <div className="p-8 relative z-20 bg-card/90 backdrop-blur-sm border-t border-white/5">
                     <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">{project.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{project.description}</p>
+                    <p className="text-muted-foreground leading-relaxed mb-4">{project.description}</p>
+                    <span className="text-sm text-primary font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                      Learn More <ArrowRight className="w-4 h-4" />
+                    </span>
                   </div>
                 </motion.div>
               ))}
@@ -187,7 +237,7 @@ function Home() {
         {/* Why Choose Us */}
         <section id="about" className="py-32 px-6 relative border-y border-white/5 bg-background/40 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
-            <motion.div 
+            <motion.div
               initial="initial"
               whileInView="animate"
               viewport={{ once: true }}
@@ -245,7 +295,7 @@ function Home() {
         {/* Contact Section */}
         <section id="contact" className="py-32 px-6 relative">
           <div className="max-w-4xl mx-auto text-center">
-            <motion.div 
+            <motion.div
               initial="initial"
               whileInView="animate"
               viewport={{ once: true }}
@@ -253,42 +303,66 @@ function Home() {
             >
               <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-8">Ready to Elevate Your Vision?</h2>
               <p className="text-xl text-muted-foreground mb-12">Connect with Dharani to commission bespoke interactive projects for your organization.</p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                 <div className="p-8 rounded-2xl bg-card border border-white/5 flex flex-col items-center justify-center gap-4 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                    <User className="w-6 h-6" />
-                  </div>
+                  <img
+                    src={logoImg}
+                    alt="Dharani"
+                    className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/40"
+                  />
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground mb-1">Owner</p>
                     <p className="font-bold text-lg">Dharani</p>
                   </div>
                 </div>
-                
-                <div className="p-8 rounded-2xl bg-card border border-white/5 flex flex-col items-center justify-center gap-4 hover:border-accent/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
+
+                <a
+                  href="tel:9786954984"
+                  className="p-8 rounded-2xl bg-card border border-white/5 flex flex-col items-center justify-center gap-4 hover:border-accent/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all no-underline text-inherit"
+                >
                   <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent">
                     <Phone className="w-6 h-6" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Contact</p>
+                    <p className="text-sm text-muted-foreground mb-1">Call Us</p>
                     <p className="font-bold text-lg">9786954984</p>
                   </div>
-                </div>
-                
-                <div className="p-8 rounded-2xl bg-card border border-white/5 flex flex-col items-center justify-center gap-4 hover:border-purple-400/30 hover:shadow-[0_0_30px_rgba(192,132,252,0.15)] transition-all">
+                </a>
+
+                <a
+                  href="mailto:creativehub2k@gmail.com"
+                  className="p-8 rounded-2xl bg-card border border-white/5 flex flex-col items-center justify-center gap-4 hover:border-purple-400/30 hover:shadow-[0_0_30px_rgba(192,132,252,0.15)] transition-all no-underline text-inherit"
+                >
                   <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400">
                     <Mail className="w-6 h-6" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Email</p>
-                    <p className="font-bold text-lg">creativehub2k@gmail.com</p>
+                    <p className="text-sm text-muted-foreground mb-1">Email Us</p>
+                    <p className="font-bold text-lg break-all">creativehub2k@gmail.com</p>
                   </div>
-                </div>
+                </a>
               </div>
 
-              <Button size="lg" className="h-16 px-10 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 border-none text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300">
-                Initiate Project
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                <Button
+                  size="lg"
+                  onClick={() => window.open("mailto:creativehub2k@gmail.com", "_blank")}
+                  className="h-16 px-10 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 border-none text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300"
+                >
+                  Send an Email
+                  <Mail className="ml-2 w-5 h-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => window.open("tel:9786954984", "_self")}
+                  className="h-16 px-10 text-lg border-white/20 hover:bg-white/5"
+                >
+                  Call Now
+                  <Phone className="ml-2 w-5 h-5" />
+                </Button>
+              </div>
             </motion.div>
           </div>
         </section>
@@ -296,13 +370,21 @@ function Home() {
         {/* Footer */}
         <footer className="py-12 px-6 border-t border-white/10 bg-background/80 backdrop-blur-md relative z-10">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2 text-white">
-              <Hexagon className="w-6 h-6 text-primary" />
+            <div className="flex items-center gap-3 text-white">
+              <img
+                src={logoImg}
+                alt="Creative Hub Logo"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40"
+              />
               <span className="font-bold text-lg tracking-tight">Creative Hub</span>
             </div>
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} Creative Hub by Dharani. All rights reserved.
             </p>
+            <div className="flex gap-6 text-sm text-muted-foreground">
+              <a href="mailto:creativehub2k@gmail.com" className="hover:text-primary transition-colors">creativehub2k@gmail.com</a>
+              <a href="tel:9786954984" className="hover:text-primary transition-colors">9786954984</a>
+            </div>
           </div>
         </footer>
       </main>
