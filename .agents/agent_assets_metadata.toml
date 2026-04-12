@@ -1,0 +1,32 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "TIKipcCH1kO2RGwWPB96g"
+uri = "file://artifacts/creative-hub/public/hero.png"
+type = "image"
+title = "Glowing abstract digital network"
+
+[[generated]]
+id = "q4qFTrGH0lqA8-ojLwckG"
+uri = "file://artifacts/creative-hub/public/project-science.png"
+type = "image"
+title = "Glowing holographic molecules interface"
+
+[[generated]]
+id = "rToDZA40973fMXRYzmajy"
+uri = "file://artifacts/creative-hub/public/project-collab.png"
+type = "image"
+title = "Interconnected glowing golden nodes"
+
+[[generated]]
+id = "cdTXzyPEroLxcZ7MfEOc8"
+uri = "file://artifacts/creative-hub/public/project-story.png"
+type = "image"
+title = "Cinematic floating light particles"
+
+[[generated]]
+id = "QshEbBa0HBpYJrQA8jecG"
+uri = "file://artifacts/creative-hub/public/project-design.png"
+type = "image"
+title = "Floating glowing neon geometry"

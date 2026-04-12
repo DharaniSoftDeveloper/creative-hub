@@ -16,6 +16,18 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 
+## Artifacts
+
+### Creative Hub (`artifacts/creative-hub`)
+- **Type**: React + Vite web app (frontend-only)
+- **Preview path**: `/`
+- **Purpose**: Premium landing page for Creative Hub brand (owner: Dharani)
+  - Showcases interactive educational projects for students and small organizations
+  - Dark luxurious theme with electric purple/cyan glowing accents
+  - Framer Motion scroll animations and parallax effects
+  - Sections: Hero, Featured Projects, About, Who We Serve, Contact, Footer
+  - Contact: 9786954984 | creativehub2k@gmail.com
+
 ## Key Commands
 
 - `pnpm run typecheck` — full typecheck across all packages
