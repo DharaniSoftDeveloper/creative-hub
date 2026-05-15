@@ -78,6 +78,8 @@ function ProjectForm() {
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -98,27 +100,37 @@ function ProjectForm() {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const body = [
-      `Name: ${form.name}`,
-      `Email: ${form.email}`,
-      `Phone: ${form.phone}`,
-      `Organization/Institution: ${form.orgName}`,
-      `Project Title: ${form.projectTitle}`,
-      `Project Type: ${selectedType}`,
-      `How the Project Works:\n${form.howItWorks}`,
-      `Required Features: ${selectedFeatures.join(", ") || "None specified"}`,
-      `Additional Notes:\n${form.additionalNotes}`,
-    ].join("\n\n");
-
-    const subject = encodeURIComponent(`New Project Request: ${form.projectTitle || "Untitled"}`);
-    const bodyEncoded = encodeURIComponent(body);
-    window.open(
-      `https://mail.google.com/mail/?view=cm&fs=1&to=creativehub2k@gmail.com&su=${subject}&body=${bodyEncoded}`,
-      "_blank"
-    );
-    setSubmitted(true);
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          orgName: form.orgName,
+          projectTitle: form.projectTitle,
+          projectType: selectedType,
+          howItWorks: form.howItWorks,
+          features: selectedFeatures.join(", "),
+          additionalNotes: form.additionalNotes,
+        }),
+      });
+      const data = await res.json() as { success?: boolean; error?: string };
+      if (!res.ok || !data.success) {
+        setError(data.error ?? "Something went wrong. Please try again.");
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setSending(false);
+    }
   }
 
   if (submitted) {
@@ -288,15 +300,33 @@ function ProjectForm() {
       </div>
 
       {/* Submit */}
+      {error && (
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">
+          {error}
+        </div>
+      )}
       <div className="pt-2">
         <Button
           type="submit"
           size="lg"
-          className="w-full h-16 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 border-none text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300"
+          disabled={sending}
+          className="w-full h-16 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 border-none text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <Mail className="mr-2 w-5 h-5" />
-          Submit Project Requirements
-          <ArrowRight className="ml-2 w-5 h-5" />
+          {sending ? (
+            <>
+              <svg className="animate-spin mr-2 w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Sending...
+            </>
+          ) : (
+            <>
+              <Mail className="mr-2 w-5 h-5" />
+              Submit Project Requirements
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </>
+          )}
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-4">
           Your requirements will be sent directly to Dharani at creativehub2k@gmail.com
