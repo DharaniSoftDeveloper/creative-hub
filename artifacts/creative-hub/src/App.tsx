@@ -114,7 +114,10 @@ function ProjectForm() {
 
     const subject = encodeURIComponent(`New Project Request: ${form.projectTitle || "Untitled"}`);
     const bodyEncoded = encodeURIComponent(body);
-    window.open(`mailto:creativehub2k@gmail.com?subject=${subject}&body=${bodyEncoded}`, "_blank");
+    window.open(
+      `https://mail.google.com/mail/?view=cm&fs=1&to=creativehub2k@gmail.com&su=${subject}&body=${bodyEncoded}`,
+      "_blank"
+    );
     setSubmitted(true);
   }
 
@@ -645,7 +648,7 @@ function Home() {
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                 <Button
                   size="lg"
-                  onClick={() => window.open("mailto:creativehub2k@gmail.com", "_blank")}
+                  onClick={() => window.open("https://mail.google.com/mail/?view=cm&fs=1&to=creativehub2k@gmail.com", "_blank")}
                   className="h-16 px-10 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 border-none text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300"
                 >
                   Send an Email
