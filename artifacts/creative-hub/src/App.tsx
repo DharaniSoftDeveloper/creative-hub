@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Mail, Phone, ArrowRight, Sparkles, Zap, Brain, Globe, CheckCircle2, ClipboardList, Layers, Cpu, Smartphone, Globe2, Layout } from "lucide-react";
+import { Mail, Phone, ArrowRight, Sparkles, Zap, Brain, Globe, CheckCircle2, ClipboardList, Layers, Cpu, Smartphone, Globe2, Layout, Server, Code2, MonitorSmartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoImg from "@assets/IMG-20260412-WA0110_1776010236262.jpg";
 
@@ -21,28 +21,83 @@ const staggerContainer = {
 
 const projects = [
   {
-    title: "Interactive Science Lab",
-    description: "A fully immersive digital sandbox for exploring complex molecular structures and physics simulations in real-time.",
-    image: "/project-science.png",
-    category: "Simulation"
+    title: "E-Commerce Web Application",
+    description: "Full-featured online store with product catalog, cart, payment gateway integration, and admin dashboard for real-time order management.",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+    category: "Web Application"
   },
   {
-    title: "Team Collaboration Kit",
-    description: "Synchronize creative minds with interconnected workspaces that turn fragmented ideas into unified digital masterpieces.",
-    image: "/project-collab.png",
-    category: "Workspace"
+    title: "School Management System",
+    description: "Comprehensive software for managing students, staff, attendance, grades, timetables, and parent communication in one unified platform.",
+    image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=80",
+    category: "Software Project"
   },
   {
-    title: "Digital Storytelling Studio",
-    description: "Craft cinematic narratives with interactive particles and dynamic lighting engines designed for next-gen creators.",
-    image: "/project-story.png",
-    category: "Creation"
+    title: "Restaurant Business Website",
+    description: "Premium restaurant website with online menu, table reservation system, photo gallery, and integrated Google Maps location.",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80",
+    category: "Website Building"
   },
   {
-    title: "Design Thinking Module",
-    description: "Transform abstract concepts into concrete geometries through our advanced spatial reasoning and rendering engine.",
-    image: "/project-design.png",
-    category: "Education"
+    title: "Food Delivery Mobile App",
+    description: "Cross-platform mobile app for food ordering with real-time tracking, push notifications, payment integration, and ratings system.",
+    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80",
+    category: "Mobile Application"
+  },
+  {
+    title: "Cloud Hosting & Deployment",
+    description: "End-to-end cloud hosting setup with custom domain, SSL certificates, auto-scaling, daily backups, and 99.9% uptime guarantee.",
+    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80",
+    category: "Hosting"
+  },
+  {
+    title: "Educational Learning Portal",
+    description: "Interactive e-learning platform with video courses, live classes, quizzes, progress tracking, certificates, and student dashboards.",
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
+    category: "Web Application"
+  }
+];
+
+const services = [
+  {
+    icon: Code2,
+    title: "Software Projects",
+    description: "Custom desktop and enterprise software built with modern technologies — from ERP systems to automation tools tailored to your workflow.",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80",
+    color: "from-purple-500/20 to-primary/10",
+    border: "border-purple-500/30"
+  },
+  {
+    icon: Layout,
+    title: "Web Applications",
+    description: "Powerful browser-based apps with real-time features, user authentication, databases, and beautiful dashboards — built to scale.",
+    image: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&q=80",
+    color: "from-cyan-500/20 to-accent/10",
+    border: "border-cyan-500/30"
+  },
+  {
+    icon: Globe2,
+    title: "Website Building",
+    description: "Professional business websites, portfolios, and landing pages designed to impress — fast, mobile-friendly, and SEO optimized.",
+    image: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=600&q=80",
+    color: "from-blue-500/20 to-indigo-500/10",
+    border: "border-blue-500/30"
+  },
+  {
+    icon: MonitorSmartphone,
+    title: "Mobile Applications",
+    description: "Cross-platform iOS and Android apps with smooth animations, offline support, push notifications, and app store deployment.",
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80",
+    color: "from-green-500/20 to-emerald-500/10",
+    border: "border-green-500/30"
+  },
+  {
+    icon: Server,
+    title: "Hosting & Deployment",
+    description: "Complete hosting solutions — custom domain setup, SSL, cloud deployment, database management, and ongoing maintenance.",
+    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80",
+    color: "from-orange-500/20 to-yellow-500/10",
+    border: "border-orange-500/30"
   }
 ];
 
@@ -364,6 +419,7 @@ function Home() {
           <span className="text-xl font-bold tracking-tight">Creative Hub</span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+          <button onClick={() => scrollToSection("services")} className="hover:text-primary transition-colors cursor-pointer bg-transparent border-none">Services</button>
           <button onClick={() => scrollToSection("projects")} className="hover:text-primary transition-colors cursor-pointer bg-transparent border-none">Projects</button>
           <button onClick={() => scrollToSection("about")} className="hover:text-primary transition-colors cursor-pointer bg-transparent border-none">About</button>
           <button onClick={() => scrollToSection("request")} className="hover:text-primary transition-colors cursor-pointer bg-transparent border-none">Request Project</button>
@@ -453,6 +509,68 @@ function Home() {
           </div>
         </section>
 
+        {/* Services Section */}
+        <section id="services" className="py-32 px-6 relative border-y border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeIn}
+              className="mb-16 text-center"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
+                <Zap className="w-4 h-4" />
+                What We Build
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
+                Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Services</span>
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                From software to mobile apps, we deliver end-to-end digital solutions with precision and creativity.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service, index) => {
+                const Icon = service.icon;
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.6, delay: index * 0.08 }}
+                    className={`group relative rounded-2xl overflow-hidden border ${service.border} bg-card hover:shadow-[0_0_40px_rgba(168,85,247,0.15)] transition-all duration-500 cursor-pointer`}
+                    onClick={() => scrollToSection("request")}
+                  >
+                    <div className="h-48 overflow-hidden relative">
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className={`absolute inset-0 bg-gradient-to-b ${service.color} to-card`} />
+                      <div className="absolute top-4 left-4">
+                        <div className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{service.title}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">{service.description}</p>
+                      <span className="text-sm text-primary font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Get a Quote <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* Featured Projects */}
         <section id="projects" className="py-32 px-6 relative">
           <div className="max-w-7xl mx-auto">
@@ -463,11 +581,11 @@ function Home() {
               variants={fadeIn}
               className="mb-16"
             >
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Featured <span className="text-primary">Experiences</span></h2>
-              <p className="text-muted-foreground text-lg max-w-2xl">Discover our portfolio of premium interactive modules crafted for modern learners and organizations.</p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Real <span className="text-primary">Projects</span> We Build</h2>
+              <p className="text-muted-foreground text-lg max-w-2xl">Explore real-world projects across every domain — from e-commerce to mobile apps and cloud hosting.</p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {projects.map((project, index) => (
                 <motion.div
                   key={index}
@@ -491,9 +609,9 @@ function Home() {
                       </span>
                     </div>
                   </div>
-                  <div className="p-8 relative z-20 bg-card/90 backdrop-blur-sm border-t border-white/5">
-                    <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">{project.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed mb-4">{project.description}</p>
+                  <div className="p-6 relative z-20 bg-card/90 backdrop-blur-sm border-t border-white/5">
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm mb-4">{project.description}</p>
                     <span className="text-sm text-primary font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
                       Request Similar <ArrowRight className="w-4 h-4" />
                     </span>
