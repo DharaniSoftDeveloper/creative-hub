@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Mail, Phone, ArrowRight, Sparkles, Zap, Brain, Globe, CheckCircle2, ClipboardList, Layers, Cpu, Smartphone, Globe2, Layout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoImg from "@assets/IMG-20260412-WA0110_1776010236262.jpg";
-import emailjs from "@emailjs/browser";
+
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -106,26 +106,28 @@ function ProjectForm() {
     setSending(true);
     setError(null);
     try {
-      await emailjs.send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID as string,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string,
-        {
-          from_name: form.name,
-          from_email: form.email,
-          phone: form.phone || "Not provided",
-          org_name: form.orgName || "Not provided",
-          project_title: form.projectTitle,
-          project_type: selectedType || "Not specified",
-          how_it_works: form.howItWorks,
-          features: selectedFeatures.join(", ") || "None specified",
-          notes: form.additionalNotes || "None",
-          to_email: "creativehub2k@gmail.com",
-        },
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string,
-      );
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          orgName: form.orgName,
+          projectTitle: form.projectTitle,
+          projectType: selectedType,
+          howItWorks: form.howItWorks,
+          features: selectedFeatures.join(", "),
+          additionalNotes: form.additionalNotes,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error || "Failed to send");
+      }
       setSubmitted(true);
-    } catch {
-      setError("Failed to send. Please check your connection and try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send. Please try again.");
     } finally {
       setSending(false);
     }
@@ -143,7 +145,7 @@ function ProjectForm() {
         </div>
         <h3 className="text-3xl font-bold">Request Submitted!</h3>
         <p className="text-muted-foreground text-lg max-w-md">
-          Your project requirements have been prepared. Your email client opened with all the details — just hit send to reach Dharani.
+          Your project requirements have been sent directly to Dharani. Expect a response within 24 hours!
         </p>
         <Button
           onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", orgName: "", projectTitle: "", howItWorks: "", additionalNotes: "" }); setSelectedType(""); setSelectedFeatures([]); }}
