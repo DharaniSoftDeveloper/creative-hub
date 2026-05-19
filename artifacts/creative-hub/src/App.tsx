@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Mail, Phone, ArrowRight, Sparkles, Zap, Brain, Globe, CheckCircle2, ClipboardList, Layers, Cpu, Smartphone, Globe2, Layout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoImg from "@assets/IMG-20260412-WA0110_1776010236262.jpg";
+import emailjs from "@emailjs/browser";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -105,29 +106,26 @@ function ProjectForm() {
     setSending(true);
     setError(null);
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          orgName: form.orgName,
-          projectTitle: form.projectTitle,
-          projectType: selectedType,
-          howItWorks: form.howItWorks,
-          features: selectedFeatures.join(", "),
-          additionalNotes: form.additionalNotes,
-        }),
-      });
-      const data = await res.json() as { success?: boolean; error?: string };
-      if (!res.ok || !data.success) {
-        setError(data.error ?? "Something went wrong. Please try again.");
-      } else {
-        setSubmitted(true);
-      }
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID as string,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string,
+        {
+          from_name: form.name,
+          from_email: form.email,
+          phone: form.phone || "Not provided",
+          org_name: form.orgName || "Not provided",
+          project_title: form.projectTitle,
+          project_type: selectedType || "Not specified",
+          how_it_works: form.howItWorks,
+          features: selectedFeatures.join(", ") || "None specified",
+          notes: form.additionalNotes || "None",
+          to_email: "creativehub2k@gmail.com",
+        },
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string,
+      );
+      setSubmitted(true);
     } catch {
-      setError("Network error. Please check your connection and try again.");
+      setError("Failed to send. Please check your connection and try again.");
     } finally {
       setSending(false);
     }

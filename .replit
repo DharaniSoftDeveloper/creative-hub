@@ -43,3 +43,6 @@ externalPort = 3001
 
 [userenv.shared]
 GMAIL_USER = "creativehub2k@gmail.com"
+VITE_EMAILJS_SERVICE_ID = "service_8n02eqh"
+VITE_EMAILJS_TEMPLATE_ID = "template_dhhha2k"
+VITE_EMAILJS_PUBLIC_KEY = "TgWTeKXypqYopknID"
