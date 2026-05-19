@@ -55,6 +55,24 @@ const projects = [
     description: "Interactive e-learning platform with video courses, live classes, quizzes, progress tracking, certificates, and student dashboards.",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
     category: "Web Application"
+  },
+  {
+    title: "AI Construction Site Safety",
+    description: "Fully automated AI surveillance system for construction sites — real-time accident detection, PPE violation alerts, sudden collapse prediction, and 24/7 camera monitoring with instant on-site notifications.",
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
+    category: "AI / ML"
+  },
+  {
+    title: "AI Exam Malpractice Detection",
+    description: "Advanced ML system that monitors students via camera during exams — tracks eye movement, head position, body posture, detects speaking, turning, tab switching, and flags suspicious behaviour in real time.",
+    image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=800&q=80",
+    category: "AI / ML"
+  },
+  {
+    title: "Emergency Alert & Response System",
+    description: "Smart emergency management platform — detects fire, structural collapse, and hazards using AI sensors, then automatically alerts and calls ambulance, police, and fire fighters with live location data.",
+    image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&q=80",
+    category: "AI / ML"
   }
 ];
 
