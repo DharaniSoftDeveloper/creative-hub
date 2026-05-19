@@ -1,0 +1,144 @@
+App Development Requirement Form
+Basic Information
+Full Name
+Business / Company Name
+Email Address
+Phone Number
+Preferred Contact Method
+WhatsApp
+Call
+Email
+Project Overview
+1. What is the name of your app?
+
+(Short answer)
+
+2. What is the main purpose of the app?
+
+(Paragraph)
+
+Example:
+Food delivery, online shopping, booking system, learning app, CCTV monitoring, etc.
+
+3. What problem will this app solve?
+
+(Paragraph)
+
+4. Who are the target users?
+
+(Checkboxes or Paragraph)
+
+Examples:
+
+Students
+Customers
+Employees
+Shop Owners
+Drivers
+General Public
+App Features
+5. What features do you need in the app?
+
+(Checkboxes)
+
+Example options:
+
+User Login / Signup
+OTP Verification
+Admin Panel
+Push Notifications
+Payment Gateway
+Live Chat
+GPS / Location Tracking
+Camera Access
+QR Code Scanner
+File Upload
+Booking System
+Video Streaming
+AI Features
+Multi-language Support
+6. Describe how the app should work step-by-step
+
+(Paragraph)
+
+Example:
+User opens app → logs in → selects product → makes payment → receives confirmation.
+
+7. Do you need an Admin Dashboard?
+
+(Multiple choice)
+
+Yes
+No
+8. Will users upload photos/videos/files?
+
+(Multiple choice)
+
+Yes
+No
+9. Do you need cloud storage/database?
+
+(Multiple choice)
+
+Yes
+No
+Not Sure
+Design & Platform
+10. Which platform do you need?
+
+(Checkboxes)
+
+Android
+iPhone (iOS)
+Website
+Desktop App
+11. Do you already have a logo or design?
+
+(Multiple choice)
+
+Yes
+No
+12. Share reference apps/websites you like
+
+(Paragraph)
+
+Technical Requirements
+13. Do you need user accounts with login?
+Email Login
+Phone Login
+Google Login
+Guest Login
+14. Should the app work online or offline?
+Online
+Offline
+Both
+15. Do you need notifications/messages?
+Push Notifications
+SMS
+Email Notifications
+WhatsApp Notifications
+Project Planning
+16. Expected launch date
+
+(Date)
+
+17. Estimated budget
+
+(Multiple choice)
+
+Under ₹5,000
+₹5,000 – ₹10,000
+₹10,000 – ₹25,000
+₹25,000+
+18. Any additional requirements?
+
+(Paragraph)
+
+Final Section
+19. Upload sample images, documents, or app references
+
+(File upload)
+
+20. Any special instructions?
+
+(Paragraph)

@@ -119,27 +119,66 @@ const services = [
   }
 ];
 
-const projectTypes = [
-  { id: "website", label: "Website", icon: Globe2, desc: "Static or dynamic web presence" },
-  { id: "web-app", label: "Web Application", icon: Layout, desc: "Interactive browser-based app" },
-  { id: "mobile-app", label: "Mobile Application", icon: Smartphone, desc: "iOS or Android app" },
-  { id: "desktop-app", label: "Desktop Application", icon: Cpu, desc: "Windows / Mac / Linux software" },
+const platforms = [
+  { id: "android", label: "Android", icon: Smartphone },
+  { id: "ios", label: "iPhone (iOS)", icon: Smartphone },
+  { id: "website", label: "Website", icon: Globe2 },
+  { id: "desktop", label: "Desktop App", icon: Cpu },
 ];
 
 const featureOptions = [
-  "User Login / Signup",
-  "Admin Dashboard",
-  "Payment Integration",
-  "Real-time Chat",
-  "Push Notifications",
-  "Data Analytics",
-  "File Uploads",
-  "API Integration",
-  "Multi-language Support",
-  "Search & Filter",
-  "Email Notifications",
-  "Dark / Light Mode",
+  "User Login / Signup", "OTP Verification", "Admin Panel", "Push Notifications",
+  "Payment Gateway", "Live Chat", "GPS / Location Tracking", "Camera Access",
+  "QR Code Scanner", "File Upload", "Booking System", "Video Streaming",
+  "AI Features", "Multi-language Support", "Real-time Chat", "Data Analytics",
+  "API Integration", "Search & Filter", "Email Notifications", "Dark / Light Mode",
 ];
+
+const targetUserOptions = ["Students", "Customers", "Employees", "Shop Owners", "Drivers", "General Public", "Other"];
+const loginTypeOptions = ["Email Login", "Phone Login", "Google Login", "Guest Login"];
+const notificationOptions = ["Push Notifications", "SMS", "Email Notifications", "WhatsApp Notifications"];
+const budgetOptions = ["Under ₹5,000", "₹5,000 – ₹10,000", "₹10,000 – ₹25,000", "₹25,000+"];
+
+function CheckGroup({ options, selected, onToggle }: { options: string[], selected: string[], onToggle: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-3">
+      {options.map(opt => {
+        const active = selected.includes(opt);
+        return (
+          <button type="button" key={opt} onClick={() => onToggle(opt)}
+            className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer ${active ? "border-primary bg-primary/15 text-white shadow-[0_0_12px_rgba(168,85,247,0.25)]" : "border-white/10 bg-white/5 text-muted-foreground hover:border-primary/30 hover:bg-white/10 hover:text-white"}`}>
+            <span className={`mr-1.5 ${active ? "text-primary" : "text-muted-foreground/50"}`}>{active ? "✓" : "+"}</span>{opt}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function RadioGroup({ options, value, onChange }: { options: string[], value: string, onChange: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-3">
+      {options.map(opt => {
+        const active = value === opt;
+        return (
+          <button type="button" key={opt} onClick={() => onChange(opt)}
+            className={`px-5 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer ${active ? "border-primary bg-primary/15 text-white shadow-[0_0_12px_rgba(168,85,247,0.25)]" : "border-white/10 bg-white/5 text-muted-foreground hover:border-primary/30 hover:text-white"}`}>
+            {active && <span className="mr-1.5 text-primary">●</span>}{opt}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function StepTitle({ num, label }: { num: string, label: string }) {
+  return (
+    <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
+      <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-sm flex items-center justify-center font-bold border border-primary/30">{num}</span>
+      {label}
+    </h3>
+  );
+}
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id);
@@ -149,29 +188,30 @@ function scrollToSection(id: string) {
 }
 
 function ProjectForm() {
-  const [selectedType, setSelectedType] = useState<string>("");
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [targetUsers, setTargetUsers] = useState<string[]>([]);
+  const [loginTypes, setLoginTypes] = useState<string[]>([]);
+  const [notificationTypes, setNotificationTypes] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    orgName: "",
-    projectTitle: "",
-    howItWorks: "",
-    additionalNotes: "",
-  });
 
-  function toggleFeature(feature: string) {
-    setSelectedFeatures(prev =>
-      prev.includes(feature) ? prev.filter(f => f !== feature) : [...prev, feature]
-    );
-  }
+  const [form, setForm] = useState({
+    name: "", businessName: "", email: "", phone: "", contactMethod: "",
+    appName: "", purpose: "", problemSolved: "",
+    howItWorks: "", referenceApps: "",
+    hasAdminDashboard: "", hasFileUpload: "", needsCloud: "",
+    hasLogo: "", onlineOffline: "", launchDate: "", budget: "",
+    additionalNotes: "", specialInstructions: "",
+  });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  function toggle(arr: string[], set: React.Dispatch<React.SetStateAction<string[]>>, val: string) {
+    set(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -183,15 +223,19 @@ function ProjectForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          orgName: form.orgName,
-          projectTitle: form.projectTitle,
-          projectType: selectedType,
-          howItWorks: form.howItWorks,
-          features: selectedFeatures.join(", "),
+          name: form.name, email: form.email, phone: form.phone,
+          orgName: form.businessName, projectTitle: form.appName,
+          projectType: selectedPlatforms.join(", "),
+          howItWorks: form.howItWorks, features: selectedFeatures.join(", "),
           additionalNotes: form.additionalNotes,
+          contactMethod: form.contactMethod, purpose: form.purpose,
+          problemSolved: form.problemSolved, targetUsers: targetUsers.join(", "),
+          hasAdminDashboard: form.hasAdminDashboard, hasFileUpload: form.hasFileUpload,
+          needsCloud: form.needsCloud, referenceApps: form.referenceApps,
+          loginTypes: loginTypes.join(", "), onlineOffline: form.onlineOffline,
+          notificationTypes: notificationTypes.join(", "),
+          hasLogo: form.hasLogo, launchDate: form.launchDate, budget: form.budget,
+          specialInstructions: form.specialInstructions,
         }),
       });
       if (!res.ok) {
@@ -206,13 +250,16 @@ function ProjectForm() {
     }
   }
 
+  function resetForm() {
+    setSubmitted(false);
+    setForm({ name: "", businessName: "", email: "", phone: "", contactMethod: "", appName: "", purpose: "", problemSolved: "", howItWorks: "", referenceApps: "", hasAdminDashboard: "", hasFileUpload: "", needsCloud: "", hasLogo: "", onlineOffline: "", launchDate: "", budget: "", additionalNotes: "", specialInstructions: "" });
+    setSelectedPlatforms([]); setSelectedFeatures([]); setTargetUsers([]); setLoginTypes([]); setNotificationTypes([]);
+  }
+
   if (submitted) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center py-20 gap-6 text-center"
-      >
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center justify-center py-20 gap-6 text-center">
         <div className="w-20 h-20 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center shadow-[0_0_40px_rgba(168,85,247,0.4)]">
           <CheckCircle2 className="w-10 h-10 text-primary" />
         </div>
@@ -220,185 +267,231 @@ function ProjectForm() {
         <p className="text-muted-foreground text-lg max-w-md">
           Your project requirements have been sent directly to Dharani. Expect a response within 24 hours!
         </p>
-        <Button
-          onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", orgName: "", projectTitle: "", howItWorks: "", additionalNotes: "" }); setSelectedType(""); setSelectedFeatures([]); }}
-          variant="outline"
-          className="border-primary/30 hover:bg-primary/10 text-primary"
-        >
+        <Button onClick={resetForm} variant="outline" className="border-primary/30 hover:bg-primary/10 text-primary">
           Submit Another Request
         </Button>
       </motion.div>
     );
   }
 
+  const inp = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-10">
-      {/* Personal Info */}
+    <form onSubmit={handleSubmit} className="space-y-12">
+
+      {/* Step 1: Basic Information */}
       <div>
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
-          <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-sm flex items-center justify-center font-bold border border-primary/30">1</span>
-          Your Details
-        </h3>
+        <StepTitle num="1" label="Basic Information" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {[
-            { name: "name", label: "Full Name", placeholder: "Enter your name", required: true },
-            { name: "orgName", label: "Organization / Institution", placeholder: "School, company, or group name" },
+            { name: "name", label: "Full Name", placeholder: "Your full name", required: true },
+            { name: "businessName", label: "Business / Company Name", placeholder: "Company, school, or institution" },
             { name: "email", label: "Email Address", placeholder: "yourmail@example.com", required: true, type: "email" },
             { name: "phone", label: "Phone Number", placeholder: "+91 XXXXX XXXXX", type: "tel" },
-          ].map(field => (
-            <div key={field.name}>
+          ].map(f => (
+            <div key={f.name}>
               <label className="block text-sm font-semibold text-muted-foreground mb-2">
-                {field.label} {field.required && <span className="text-primary">*</span>}
+                {f.label} {f.required && <span className="text-primary">*</span>}
               </label>
-              <input
-                name={field.name}
-                type={field.type ?? "text"}
-                value={(form as Record<string, string>)[field.name]}
-                onChange={handleChange}
-                required={field.required}
-                placeholder={field.placeholder}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
-              />
+              <input name={f.name} type={f.type ?? "text"} value={(form as Record<string,string>)[f.name]}
+                onChange={handleChange} required={f.required} placeholder={f.placeholder} className={inp} />
             </div>
           ))}
         </div>
+        <div className="mt-6">
+          <label className="block text-sm font-semibold text-muted-foreground mb-3">Preferred Contact Method</label>
+          <RadioGroup options={["WhatsApp", "Call", "Email"]} value={form.contactMethod}
+            onChange={v => setForm(p => ({ ...p, contactMethod: v }))} />
+        </div>
       </div>
 
-      {/* Project Title */}
+      {/* Step 2: Project Overview */}
       <div>
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
-          <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-sm flex items-center justify-center font-bold border border-primary/30">2</span>
-          Project Title
-        </h3>
-        <input
-          name="projectTitle"
-          value={form.projectTitle}
-          onChange={handleChange}
-          required
-          placeholder="Give your project a name..."
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
-        />
+        <StepTitle num="2" label="Project Overview" />
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-2">App / Project Name <span className="text-primary">*</span></label>
+            <input name="appName" value={form.appName} onChange={handleChange} required
+              placeholder="What is the name of your app or project?" className={inp} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-2">Main Purpose of the App <span className="text-primary">*</span></label>
+            <textarea name="purpose" value={form.purpose} onChange={handleChange} required rows={3}
+              placeholder="e.g. Food delivery, booking system, CCTV monitoring, e-learning platform..."
+              className={inp + " resize-none"} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-2">What Problem Will This App Solve? <span className="text-primary">*</span></label>
+            <textarea name="problemSolved" value={form.problemSolved} onChange={handleChange} required rows={3}
+              placeholder="Describe the core problem your app will address..."
+              className={inp + " resize-none"} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-3">Who Are the Target Users?</label>
+            <CheckGroup options={targetUserOptions} selected={targetUsers}
+              onToggle={v => toggle(targetUsers, setTargetUsers, v)} />
+          </div>
+        </div>
       </div>
 
-      {/* Project Type */}
+      {/* Step 3: Platform */}
       <div>
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
-          <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-sm flex items-center justify-center font-bold border border-primary/30">3</span>
-          Project Type
-        </h3>
+        <StepTitle num="3" label="Which Platform Do You Need?" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {projectTypes.map(type => {
-            const Icon = type.icon;
-            const active = selectedType === type.id;
+          {platforms.map(p => {
+            const Icon = p.icon;
+            const active = selectedPlatforms.includes(p.id);
             return (
-              <button
-                type="button"
-                key={type.id}
-                onClick={() => setSelectedType(type.id)}
-                className={`p-5 rounded-2xl border text-left transition-all duration-300 cursor-pointer group ${
-                  active
-                    ? "border-primary bg-primary/15 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
-                    : "border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10"
-                }`}
-              >
+              <button type="button" key={p.id} onClick={() => toggle(selectedPlatforms, setSelectedPlatforms, p.id)}
+                className={`p-5 rounded-2xl border text-left transition-all duration-300 cursor-pointer group ${active ? "border-primary bg-primary/15 shadow-[0_0_20px_rgba(168,85,247,0.3)]" : "border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10"}`}>
                 <Icon className={`w-7 h-7 mb-3 ${active ? "text-primary" : "text-muted-foreground group-hover:text-primary/70"} transition-colors`} />
-                <p className={`font-bold text-sm mb-1 ${active ? "text-white" : "text-muted-foreground"}`}>{type.label}</p>
-                <p className="text-xs text-muted-foreground/70">{type.desc}</p>
+                <p className={`font-bold text-sm ${active ? "text-white" : "text-muted-foreground"}`}>{p.label}</p>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* How It Works */}
+      {/* Step 4: App Features */}
       <div>
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
-          <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-sm flex items-center justify-center font-bold border border-primary/30">4</span>
-          How Should the Project Work?
-        </h3>
-        <textarea
-          name="howItWorks"
-          value={form.howItWorks}
-          onChange={handleChange}
-          required
-          rows={5}
-          placeholder="Describe how you envision the project working. What problem does it solve? Who will use it? What is the main flow or journey for a user? Be as detailed as possible..."
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-        />
-      </div>
-
-      {/* Features */}
-      <div>
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
-          <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-sm flex items-center justify-center font-bold border border-primary/30">5</span>
-          Required Features
-          <span className="text-sm font-normal text-muted-foreground ml-1">(select all that apply)</span>
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {featureOptions.map(feature => {
-            const active = selectedFeatures.includes(feature);
-            return (
-              <button
-                type="button"
-                key={feature}
-                onClick={() => toggleFeature(feature)}
-                className={`px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all duration-200 cursor-pointer ${
-                  active
-                    ? "border-primary bg-primary/15 text-white shadow-[0_0_12px_rgba(168,85,247,0.25)]"
-                    : "border-white/10 bg-white/5 text-muted-foreground hover:border-primary/30 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <span className={`mr-2 ${active ? "text-primary" : "text-muted-foreground/50"}`}>{active ? "✓" : "+"}</span>
-                {feature}
-              </button>
-            );
-          })}
+        <StepTitle num="4" label="App Features" />
+        <div className="space-y-7">
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-3">
+              Select all features you need <span className="text-xs text-muted-foreground/60">(choose all that apply)</span>
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {featureOptions.map(feature => {
+                const active = selectedFeatures.includes(feature);
+                return (
+                  <button type="button" key={feature} onClick={() => toggle(selectedFeatures, setSelectedFeatures, feature)}
+                    className={`px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all duration-200 cursor-pointer ${active ? "border-primary bg-primary/15 text-white shadow-[0_0_12px_rgba(168,85,247,0.25)]" : "border-white/10 bg-white/5 text-muted-foreground hover:border-primary/30 hover:bg-white/10 hover:text-white"}`}>
+                    <span className={`mr-2 ${active ? "text-primary" : "text-muted-foreground/50"}`}>{active ? "✓" : "+"}</span>
+                    {feature}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+            <div>
+              <label className="block text-sm font-semibold text-muted-foreground mb-3">Admin Dashboard?</label>
+              <RadioGroup options={["Yes", "No"]} value={form.hasAdminDashboard}
+                onChange={v => setForm(p => ({ ...p, hasAdminDashboard: v }))} />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-muted-foreground mb-3">Users Upload Photos / Videos / Files?</label>
+              <RadioGroup options={["Yes", "No"]} value={form.hasFileUpload}
+                onChange={v => setForm(p => ({ ...p, hasFileUpload: v }))} />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-muted-foreground mb-3">Need Cloud Storage / Database?</label>
+              <RadioGroup options={["Yes", "No", "Not Sure"]} value={form.needsCloud}
+                onChange={v => setForm(p => ({ ...p, needsCloud: v }))} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Additional Notes */}
+      {/* Step 5: How It Works */}
       <div>
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
-          <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-sm flex items-center justify-center font-bold border border-primary/30">6</span>
-          Additional Requirements / Notes
-        </h3>
-        <textarea
-          name="additionalNotes"
-          value={form.additionalNotes}
-          onChange={handleChange}
-          rows={4}
-          placeholder="Any specific design preferences, deadlines, budget range, or other details you'd like to share..."
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-        />
+        <StepTitle num="5" label="How the App Should Work" />
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-2">
+              Describe the app step-by-step <span className="text-primary">*</span>
+            </label>
+            <textarea name="howItWorks" value={form.howItWorks} onChange={handleChange} required rows={5}
+              placeholder="e.g. User opens app → logs in → selects product → makes payment → receives confirmation..."
+              className={inp + " resize-none"} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-2">Reference Apps / Websites You Like</label>
+            <textarea name="referenceApps" value={form.referenceApps} onChange={handleChange} rows={3}
+              placeholder="Share any app names or website URLs that inspire your idea..."
+              className={inp + " resize-none"} />
+          </div>
+        </div>
       </div>
 
-      {/* Submit */}
+      {/* Step 6: Technical Requirements */}
+      <div>
+        <StepTitle num="6" label="Technical Requirements" />
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-3">User Login Type</label>
+            <CheckGroup options={loginTypeOptions} selected={loginTypes}
+              onToggle={v => toggle(loginTypes, setLoginTypes, v)} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-3">Should the App Work Online or Offline?</label>
+            <RadioGroup options={["Online", "Offline", "Both"]} value={form.onlineOffline}
+              onChange={v => setForm(p => ({ ...p, onlineOffline: v }))} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-3">Notifications / Alerts Needed</label>
+            <CheckGroup options={notificationOptions} selected={notificationTypes}
+              onToggle={v => toggle(notificationTypes, setNotificationTypes, v)} />
+          </div>
+        </div>
+      </div>
+
+      {/* Step 7: Design & Planning */}
+      <div>
+        <StepTitle num="7" label="Design & Project Planning" />
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-3">Do You Already Have a Logo or Design?</label>
+            <RadioGroup options={["Yes", "No"]} value={form.hasLogo}
+              onChange={v => setForm(p => ({ ...p, hasLogo: v }))} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-muted-foreground mb-2">Expected Launch Date</label>
+              <input name="launchDate" type="date" value={form.launchDate} onChange={handleChange}
+                className={inp} style={{ colorScheme: "dark" }} />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-muted-foreground mb-3">Estimated Budget</label>
+              <RadioGroup options={budgetOptions} value={form.budget}
+                onChange={v => setForm(p => ({ ...p, budget: v }))} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Step 8: Final Notes */}
+      <div>
+        <StepTitle num="8" label="Additional Requirements" />
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-2">Any Additional Requirements?</label>
+            <textarea name="additionalNotes" value={form.additionalNotes} onChange={handleChange} rows={4}
+              placeholder="Specific design preferences, integrations, deadlines, or anything else..."
+              className={inp + " resize-none"} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-muted-foreground mb-2">Special Instructions</label>
+            <textarea name="specialInstructions" value={form.specialInstructions} onChange={handleChange} rows={3}
+              placeholder="Any special notes or instructions for Dharani..."
+              className={inp + " resize-none"} />
+          </div>
+        </div>
+      </div>
+
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">
-          {error}
-        </div>
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">{error}</div>
       )}
       <div className="pt-2">
-        <Button
-          type="submit"
-          size="lg"
-          disabled={sending}
-          className="w-full h-16 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 border-none text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" size="lg" disabled={sending}
+          className="w-full h-16 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 border-none text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed">
           {sending ? (
-            <>
-              <svg className="animate-spin mr-2 w-5 h-5" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-              Sending...
-            </>
+            <><svg className="animate-spin mr-2 w-5 h-5" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>Sending...</>
           ) : (
-            <>
-              <Mail className="mr-2 w-5 h-5" />
-              Submit Project Requirements
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </>
+            <><Mail className="mr-2 w-5 h-5" />Submit Project Requirements<ArrowRight className="ml-2 w-5 h-5" /></>
           )}
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-4">
