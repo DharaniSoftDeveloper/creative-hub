@@ -1,13 +1,15 @@
+import fs from "node:fs";
+import path from "node:path";
 import app from "./app";
 import { logger } from "./lib/logger";
 
-const rawPort = process.env["PORT"];
+const localEnvPath = path.resolve(process.cwd(), ".env.local");
 
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
+if (fs.existsSync(localEnvPath)) {
+  process.loadEnvFile(localEnvPath);
 }
+
+const rawPort = process.env["PORT"] || "10000";
 
 const port = Number(rawPort);
 

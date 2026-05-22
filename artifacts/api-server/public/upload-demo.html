@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Upload Demo</title>
+</head>
+<body>
+  <h1>Upload Demo</h1>
+  <form id="f" enctype="multipart/form-data">
+    <label>Upload Token: <input type="text" id="token" placeholder="demo-token-123" /></label>
+    <label>File: <input type="file" name="file" /></label>
+    <button type="submit">Upload</button>
+  </form>
+  <div id="res"></div>
+
+  <script>
+    const f = document.getElementById('f');
+    const res = document.getElementById('res');
+    const token = document.getElementById('token');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(f);
+      const tkn = token.value || 'demo-token-123';
+      const r = await fetch('/api/upload', { method: 'POST', body: fd, headers: { 'x-upload-token': tkn } });
+      const j = await r.json();
+      if (!r.ok) {
+        res.textContent = j.error || JSON.stringify(j);
+        return;
+      }
+      const link = document.createElement('a');
+      link.href = j.path;
+      link.textContent = j.filename;
+      res.innerHTML = '';
+      res.appendChild(link);
+    });
+  </script>
+</body>
+</html>

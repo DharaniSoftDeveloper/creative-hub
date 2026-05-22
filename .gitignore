@@ -47,3 +47,8 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+.env.local
+artifacts/api-server/submissions/
+artifacts/creative-hub/publish/
+artifacts/creative-hub/vite-dev.log
+artifacts/creative-hub/vite-dev.err.log
