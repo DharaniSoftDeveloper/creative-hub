@@ -2,7 +2,6 @@ services:
   - type: web
     name: creative-hub-showcase
     runtime: static
-    plan: free
     autoDeployTrigger: commit
     buildCommand: pnpm install --frozen-lockfile && pnpm --filter @workspace/creative-hub run build
     staticPublishPath: ./artifacts/creative-hub/dist/public
