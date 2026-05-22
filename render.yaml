@@ -8,7 +8,30 @@ services:
     envVars:
       - key: BASE_PATH
         value: /
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: creative-hub-api
+          property: url
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+  - type: web
+    name: creative-hub-api
+    runtime: node
+    plan: free
+    autoDeployTrigger: commit
+    buildCommand: pnpm install --frozen-lockfile && cd artifacts/creative-hub && pnpm build && cd ../api-server && pnpm build
+    startCommand: cd artifacts/api-server && pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CONTACT_TO_EMAIL
+        value: creativehub2k@gmail.com
+      - key: CONTACT_PHONE
+        value: 9786954984
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false

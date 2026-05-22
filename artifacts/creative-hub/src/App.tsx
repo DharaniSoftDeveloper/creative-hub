@@ -166,6 +166,7 @@ const emailJsConfig = {
   serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
   templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
 };
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || "";
 
 const emailJsEnabled = Object.values(emailJsConfig).every(Boolean);
 
@@ -271,6 +272,30 @@ function buildEmailTemplateParams(
     subject: `New Project Request: ${payload.projectTitle}`,
     message: details,
   };
+}
+
+function getContactApiUrl() {
+  if (!apiBaseUrl) {
+    return "/api/contact";
+  }
+
+  return `${apiBaseUrl.replace(/\/$/, "")}/api/contact`;
+}
+
+function formatSubmitError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return "Failed to send. Please try again.";
+  }
+
+  if (/account not found/i.test(error.message)) {
+    return "The website email service is not configured correctly yet. Please use the email or call options below while setup is completed.";
+  }
+
+  if (/failed to fetch/i.test(error.message)) {
+    return "We could not reach the submission service right now. Please use the email or call options below.";
+  }
+
+  return error.message || "Failed to send. Please try again.";
 }
 
 function CheckGroup({
@@ -438,24 +463,31 @@ function ProjectForm() {
         notificationTypes,
       });
 
-      if (emailJsEnabled) {
-        await emailjs.send(
-          emailJsConfig.serviceId,
-          emailJsConfig.templateId,
-          buildEmailTemplateParams(payload),
-          {
-            publicKey: emailJsConfig.publicKey,
-          },
-        );
+      let emailJsError: Error | null = null;
 
-        setSubmitResult({
-          message: "Your request has been sent successfully!",
-          queued: false,
-        });
-        return;
+      if (emailJsEnabled) {
+        try {
+          await emailjs.send(
+            emailJsConfig.serviceId,
+            emailJsConfig.templateId,
+            buildEmailTemplateParams(payload),
+            {
+              publicKey: emailJsConfig.publicKey,
+            },
+          );
+
+          setSubmitResult({
+            message: "Your request has been sent successfully!",
+            queued: false,
+          });
+          return;
+        } catch (err) {
+          emailJsError =
+            err instanceof Error ? err : new Error("Email service failed");
+        }
       }
 
-      const res = await fetch("/api/contact", {
+      const res = await fetch(getContactApiUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -466,18 +498,18 @@ function ProjectForm() {
         queued?: boolean;
       };
       if (!res.ok) {
-        throw new Error(data.error || "Failed to send");
+        throw new Error(
+          data.error ||
+            emailJsError?.message ||
+            "Failed to send. Please try again.",
+        );
       }
       setSubmitResult({
         message: data.message || "Your request has been received successfully!",
         queued: Boolean(data.queued),
       });
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to send. Please try again.",
-      );
+      setError(formatSubmitError(err));
     } finally {
       setSending(false);
     }
@@ -936,8 +968,30 @@ function ProjectForm() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">
-          {error}
+        <div className="space-y-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-center">
+          <p className="text-sm text-red-300">{error}</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Button
+              type="button"
+              onClick={() =>
+                window.open(
+                  "https://mail.google.com/mail/?view=cm&fs=1&to=creativehub2k@gmail.com",
+                  "_blank",
+                )
+              }
+              className="bg-gradient-to-r from-primary to-accent border-none text-[#17120d]"
+            >
+              Email Instead
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.open("tel:9786954984", "_self")}
+              className="border-white/20 hover:bg-white/5"
+            >
+              Call Instead
+            </Button>
+          </div>
         </div>
       )}
       <div className="pt-2">
