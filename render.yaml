@@ -9,10 +9,7 @@ services:
       - key: BASE_PATH
         value: /
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: creative-hub-api
-          property: url
+        sync: false
     routes:
       - type: rewrite
         source: /*
