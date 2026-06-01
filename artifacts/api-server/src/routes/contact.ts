@@ -73,8 +73,8 @@ function buildCustomerConfirmationHtml({
 }
 
 function getMailTransport() {
-  const smtpHost = process.env["SMTP_HOST"];
-  const smtpUser = process.env["SMTP_USER"];
+  const smtpHost = process.env["SMTP_HOST"]?.trim();
+  const smtpUser = process.env["SMTP_USER"]?.trim();
   const smtpPass = process.env["SMTP_PASS"];
   const smtpPort = Number(process.env["SMTP_PORT"] || "587");
   const smtpSecure = process.env["SMTP_SECURE"] === "true";
@@ -90,12 +90,15 @@ function getMailTransport() {
           user: smtpUser,
           pass: smtpPass,
         },
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 20000,
       }),
     };
   }
 
-  const gmailUser = process.env["GMAIL_USER"];
-  const gmailPass = process.env["GMAIL_APP_PASSWORD"];
+  const gmailUser = process.env["GMAIL_USER"]?.trim();
+  const gmailPass = process.env["GMAIL_APP_PASSWORD"]?.replace(/\s+/g, "");
 
   if (gmailUser && gmailPass) {
     return {
@@ -106,6 +109,9 @@ function getMailTransport() {
           user: gmailUser,
           pass: gmailPass,
         },
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 20000,
       }),
     };
   }
