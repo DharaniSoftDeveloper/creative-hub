@@ -575,6 +575,10 @@ function ProjectForm() {
         <p className="text-muted-foreground text-base sm:text-lg max-w-lg">
           {submitResult.message}
         </p>
+        <div className="w-full max-w-lg rounded-xl border border-primary/30 bg-primary/10 px-5 py-4 text-sm sm:text-base text-primary">
+          For priority requests, please pay Rs. 250 and register in our
+          application.
+        </div>
         <div className="flex w-full max-w-lg flex-col gap-3">
           {submitResult.queued && (
             <>
@@ -1043,6 +1047,9 @@ function ProjectForm() {
         <p className="text-center text-sm text-muted-foreground mt-4">
           Your request will be sent directly to Dharani at{" "}
           creativehub2k@gmail.com.
+        </p>
+        <p className="text-center text-sm text-primary mt-2">
+          For priority requests, pay Rs. 250 and register in our application.
         </p>
       </div>
     </form>
