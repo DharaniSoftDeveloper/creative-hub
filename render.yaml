@@ -9,7 +9,7 @@ services:
       - key: BASE_PATH
         value: /
       - key: VITE_API_BASE_URL
-        value: https://creative-hub-api.onrender.com
+        value: https://creative-hub-api-ptm5.onrender.com
     routes:
       - type: rewrite
         source: /*
@@ -28,6 +28,8 @@ services:
         value: creativehub2k@gmail.com
       - key: CONTACT_PHONE
         value: 9786954984
+      - key: VITE_API_BASE_URL
+        value: https://creative-hub-api-ptm5.onrender.com
       - key: GMAIL_USER
         sync: false
       - key: GMAIL_APP_PASSWORD
