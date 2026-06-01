@@ -169,6 +169,7 @@ const emailJsConfig = {
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || "";
 const contactEmail = "creativehub2k@gmail.com";
 const contactPhone = "9786954984";
+const submitTimeoutMs = 15000;
 
 const emailJsEnabled = Object.values(emailJsConfig).every(Boolean);
 
@@ -282,15 +283,69 @@ function buildEmailTemplateParams(
 
 function getContactApiUrl() {
   if (!apiBaseUrl) {
-    return "/api/contact";
+    return "";
   }
 
   return `${apiBaseUrl.replace(/\/$/, "")}/api/contact`;
 }
 
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  label: string,
+) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`${label} timed out. Please try again.`));
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
+async function postContactRequest(payload: ReturnType<typeof buildContactPayload>) {
+  const contactApiUrl = getContactApiUrl();
+  if (!contactApiUrl) {
+    throw new Error(
+      "The website submission service is not connected yet. Please use the email or call options below.",
+    );
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), submitTimeoutMs);
+
+  try {
+    return await fetch(contactApiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Submission service timed out. Please try again.");
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 function formatSubmitError(error: unknown) {
   if (!(error instanceof Error)) {
     return "Failed to send. Please try again.";
+  }
+
+  if (/timed out/i.test(error.message)) {
+    return "The submission is taking too long. Please use the email or call options below, or try again in a moment.";
   }
 
   if (/account not found/i.test(error.message)) {
@@ -482,13 +537,17 @@ function ProjectForm() {
 
       if (emailJsEnabled) {
         try {
-          await emailjs.send(
-            emailJsConfig.serviceId,
-            emailJsConfig.templateId,
-            buildEmailTemplateParams(payload),
-            {
-              publicKey: emailJsConfig.publicKey,
-            },
+          await withTimeout(
+            emailjs.send(
+              emailJsConfig.serviceId,
+              emailJsConfig.templateId,
+              buildEmailTemplateParams(payload),
+              {
+                publicKey: emailJsConfig.publicKey,
+              },
+            ),
+            submitTimeoutMs,
+            "Email service",
           );
 
           setSubmitResult({
@@ -502,11 +561,7 @@ function ProjectForm() {
         }
       }
 
-      const res = await fetch(getContactApiUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await postContactRequest(payload);
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
         message?: string;
