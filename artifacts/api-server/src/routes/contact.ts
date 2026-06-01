@@ -284,63 +284,59 @@ router.post("/contact", async (req, res) => {
     return;
   }
 
-  try {
-    await mailTransport.transporter.sendMail({
-      from: `"Creative Hub Website" <${mailTransport.fromAddress}>`,
-      to: contactRecipient,
-      subject: `New Project Request: ${projectTitle}`,
-      html,
-      replyTo: email,
-    });
+  saveSubmission(payload, "queued");
+  res.json({
+    success: true,
+    queued: false,
+    message: "Your request has been received successfully!",
+  });
 
-    saveSubmission(payload, "sent");
-    let confirmationSent = false;
-
+  void (async () => {
     try {
       await mailTransport.transporter.sendMail({
-        from: `"Creative Hub" <${mailTransport.fromAddress}>`,
-        to: email,
-        subject: `We received your request for ${projectTitle}`,
-        html: buildCustomerConfirmationHtml({
-          name,
-          projectTitle,
-          contactRecipient,
-          contactPhone: fallbackContactPhone,
-        }),
-        replyTo: contactRecipient,
+        from: `"Creative Hub Website" <${mailTransport.fromAddress}>`,
+        to: contactRecipient,
+        subject: `New Project Request: ${projectTitle}`,
+        html,
+        replyTo: email,
       });
-      confirmationSent = true;
-    } catch (confirmationErr) {
-      req.log?.warn(
-        { err: confirmationErr, email, projectTitle },
-        "Owner email sent, but confirmation email failed",
+
+      let confirmationSent = false;
+
+      try {
+        await mailTransport.transporter.sendMail({
+          from: `"Creative Hub" <${mailTransport.fromAddress}>`,
+          to: email,
+          subject: `We received your request for ${projectTitle}`,
+          html: buildCustomerConfirmationHtml({
+            name,
+            projectTitle,
+            contactRecipient,
+            contactPhone: fallbackContactPhone,
+          }),
+          replyTo: contactRecipient,
+        });
+        confirmationSent = true;
+      } catch (confirmationErr) {
+        req.log?.warn(
+          { err: confirmationErr, email, projectTitle },
+          "Owner email sent, but confirmation email failed",
+        );
+      }
+
+      saveSubmission(payload, "sent");
+      req.log?.info(
+        { name, projectTitle, confirmationSent },
+        "Contact email sent",
+      );
+    } catch (err) {
+      saveSubmission(payload, "failed");
+      req.log?.error(
+        { err },
+        "Failed to send contact email; request saved locally",
       );
     }
-
-    req.log?.info(
-      { name, projectTitle, confirmationSent },
-      "Contact email sent",
-    );
-    res.json({
-      success: true,
-      queued: false,
-      confirmationSent,
-      message: confirmationSent
-        ? "Your request has been sent successfully!"
-        : "Your request was sent successfully, but we could not deliver the confirmation email to you.",
-    });
-  } catch (err) {
-    saveSubmission(payload, "failed");
-    req.log?.error(
-      { err },
-      "Failed to send contact email; request saved locally",
-    );
-    res.status(202).json({
-      success: true,
-      queued: true,
-      message: `Your request was saved, but we could not deliver the email automatically right now. Please also contact us at ${contactRecipient} or ${fallbackContactPhone}.`,
-    });
-  }
+  })();
 });
 
 export default router;

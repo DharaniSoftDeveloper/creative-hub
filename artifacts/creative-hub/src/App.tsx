@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import emailjs from "@emailjs/browser";
 import {
   Mail,
   Phone,
@@ -161,17 +160,10 @@ const navItems = [
   { id: "request", label: "Request Project" },
   { id: "contact", label: "Contact" },
 ];
-const emailJsConfig = {
-  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
-  templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-};
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || "";
 const contactEmail = "creativehub2k@gmail.com";
 const contactPhone = "9786954984";
 const submitTimeoutMs = 15000;
-
-const emailJsEnabled = Object.values(emailJsConfig).every(Boolean);
 
 function buildContactPayload({
   form,
@@ -287,27 +279,6 @@ function getContactApiUrl() {
   }
 
   return `${apiBaseUrl.replace(/\/$/, "")}/api/contact`;
-}
-
-async function withTimeout<T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  label: string,
-) {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error(`${label} timed out. Please try again.`));
-    }, timeoutMs);
-  });
-
-  try {
-    return await Promise.race([promise, timeout]);
-  } finally {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-  }
 }
 
 async function postContactRequest(payload: ReturnType<typeof buildContactPayload>) {
@@ -533,34 +504,6 @@ function ProjectForm() {
       });
       setFallbackMailtoUrl(buildMailtoUrl(payload));
 
-      let emailJsError: Error | null = null;
-
-      if (emailJsEnabled) {
-        try {
-          await withTimeout(
-            emailjs.send(
-              emailJsConfig.serviceId,
-              emailJsConfig.templateId,
-              buildEmailTemplateParams(payload),
-              {
-                publicKey: emailJsConfig.publicKey,
-              },
-            ),
-            submitTimeoutMs,
-            "Email service",
-          );
-
-          setSubmitResult({
-            message: "Your request has been sent successfully!",
-            queued: false,
-          });
-          return;
-        } catch (err) {
-          emailJsError =
-            err instanceof Error ? err : new Error("Email service failed");
-        }
-      }
-
       const res = await postContactRequest(payload);
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
@@ -570,9 +513,7 @@ function ProjectForm() {
       };
       if (!res.ok || data.success !== true) {
         throw new Error(
-          data.error ||
-            emailJsError?.message ||
-            "Failed to send. Please try again.",
+          data.error || "Failed to send. Please try again.",
         );
       }
       setSubmitResult({
