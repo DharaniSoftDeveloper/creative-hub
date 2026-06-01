@@ -167,6 +167,8 @@ const emailJsConfig = {
   templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
 };
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || "";
+const contactEmail = "creativehub2k@gmail.com";
+const contactPhone = "9786954984";
 
 const emailJsEnabled = Object.values(emailJsConfig).every(Boolean);
 
@@ -266,8 +268,12 @@ function buildEmailTemplateParams(
   return {
     ...payload,
     businessName: payload.orgName,
+    to_email: contactEmail,
+    recipient_email: contactEmail,
+    contact_email: contactEmail,
     from_name: payload.name,
     from_email: payload.email,
+    user_email: payload.email,
     reply_to: payload.email,
     subject: `New Project Request: ${payload.projectTitle}`,
     message: details,
@@ -296,6 +302,11 @@ function formatSubmitError(error: unknown) {
   }
 
   return error.message || "Failed to send. Please try again.";
+}
+
+function buildMailtoUrl(payload: ReturnType<typeof buildContactPayload>) {
+  const params = buildEmailTemplateParams(payload);
+  return `mailto:${contactEmail}?subject=${encodeURIComponent(params.subject)}&body=${encodeURIComponent(params.message)}`;
 }
 
 function CheckGroup({
@@ -408,6 +419,9 @@ function ProjectForm() {
     message: string;
     queued: boolean;
   } | null>(null);
+  const [fallbackMailtoUrl, setFallbackMailtoUrl] = useState(
+    `mailto:${contactEmail}`,
+  );
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -462,6 +476,7 @@ function ProjectForm() {
         loginTypes,
         notificationTypes,
       });
+      setFallbackMailtoUrl(buildMailtoUrl(payload));
 
       let emailJsError: Error | null = null;
 
@@ -496,8 +511,9 @@ function ProjectForm() {
         error?: string;
         message?: string;
         queued?: boolean;
+        success?: boolean;
       };
-      if (!res.ok) {
+      if (!res.ok || data.success !== true) {
         throw new Error(
           data.error ||
             emailJsError?.message ||
@@ -518,6 +534,7 @@ function ProjectForm() {
   function resetForm() {
     setSubmitResult(null);
     setError(null);
+    setFallbackMailtoUrl(`mailto:${contactEmail}`);
     setForm({
       name: "",
       businessName: "",
@@ -567,14 +584,14 @@ function ProjectForm() {
             <>
               <Button
                 onClick={() =>
-                  window.open("mailto:creativehub2k@gmail.com", "_self")
+                  window.open(fallbackMailtoUrl, "_self")
                 }
                 className="w-full bg-gradient-to-r from-primary to-accent text-white border-none"
               >
                 Email Dharani
               </Button>
               <Button
-                onClick={() => window.open("tel:9786954984", "_self")}
+                onClick={() => window.open(`tel:${contactPhone}`, "_self")}
                 variant="outline"
                 className="w-full border-white/20 hover:bg-white/5"
               >
@@ -973,12 +990,7 @@ function ProjectForm() {
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button
               type="button"
-              onClick={() =>
-                window.open(
-                  "https://mail.google.com/mail/?view=cm&fs=1&to=creativehub2k@gmail.com",
-                  "_blank",
-                )
-              }
+              onClick={() => window.open(fallbackMailtoUrl, "_self")}
               className="bg-gradient-to-r from-primary to-accent border-none text-[#17120d]"
             >
               Email Instead
@@ -986,7 +998,7 @@ function ProjectForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => window.open("tel:9786954984", "_self")}
+              onClick={() => window.open(`tel:${contactPhone}`, "_self")}
               className="border-white/20 hover:bg-white/5"
             >
               Call Instead
