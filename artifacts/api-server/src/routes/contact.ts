@@ -114,78 +114,78 @@ function buildCustomerConfirmationHtml({
       specialInstructions,
     } = payload;
 
-    // Build a compact top summary and a full, readable details block similar to the screenshots
-    const summaryRows = [
-      ["Name", name],
-      ["Email", email],
-      ["Phone", phone],
-      ["Business", orgName],
-      ["Project", projectTitle],
-      ["Platforms", projectType],
-    ]
-      .filter(([, v]) => v)
-      .map(([k, v]) => `
-        <tr>
-          <td style="padding:10px 12px;border-bottom:1px solid #e6eef8;font-weight:600;color:#0b3a66;width:140px;vertical-align:top;background:#f3f8ff;">${escapeHtml(
-            k,
-          )}</td>
-          <td style="padding:10px 12px;border-bottom:1px solid #e6eef8;vertical-align:top;color:#0b2540;">${escapeHtml(
-            v,
-          )}</td>
-        </tr>`)
-      .join("");
-
-    const detailLines = [
-      ["Name", name],
-      ["Email", email],
-      ["Phone", phone],
-      ["Business", orgName],
-      ["Project", projectTitle],
-      ["Platforms", projectType],
-      ["Purpose", purpose],
-      ["Problem Solved", problemSolved],
-      ["Target Users", targetUsers],
-      ["Features", features],
-      ["Admin Dashboard", hasAdminDashboard],
-      ["File Upload", hasFileUpload],
-      ["Needs Cloud", needsCloud],
-      ["How It Works", howItWorks],
-      ["Reference Apps", referenceApps],
-      ["Login Types", loginTypes],
-      ["Online / Offline", onlineOffline],
-      ["Notifications", notificationTypes],
-      ["Has Logo", hasLogo],
-      ["Launch Date", launchDate],
-      ["Budget", budget],
-      ["Additional Notes", additionalNotes],
-      ["Special Instructions", specialInstructions],
-    ]
-      .filter(([, v]) => v)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join("\\n\\n");
-
+    // Build a dark-themed two-column layout with boxed sections and clear label/value columns
     return `
-      <div style="font-family:Arial,Helvetica,sans-serif;max-width:760px;margin:0 auto;background:#ffffff;color:#0b2540;padding:0;border-radius:8px;border:1px solid #e6eef8;overflow:hidden;">
-        <div style="background:#1e3a8a;color:#ffffff;padding:16px 20px;">
-          <h2 style="margin:0;font-size:18px;">Creative Hub</h2>
-          <div style="font-size:13px;opacity:0.95;margin-top:4px;">New Project Request Received</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;max-width:760px;margin:0 auto;background:#0f0a1e;color:#e2e8f0;padding:0;border-radius:10px;border:1px solid #2b1a49;overflow:hidden;">
+        <div style="background:#120827;padding:20px 22px;border-bottom:1px solid #3b1fa8;text-align:center;">
+          <h1 style="margin:0;color:#a855f7;font-size:22px;letter-spacing:1px;">Creative Hub</h1>
+          <div style="color:#9ca3af;font-size:12px;margin-top:6px;">New Project Request Received</div>
         </div>
 
-        <div style="padding:18px;">
-          <table style="width:100%;border-collapse:collapse;background:transparent;margin-bottom:16px;">
-            <tbody>
-              ${summaryRows}
-            </tbody>
-          </table>
+        <div style="display:flex;gap:18px;padding:18px;background:linear-gradient(180deg,#0b0816, #0f0a1e);">
+          <div style="width:38%;">
+            <div style="background:#0b1020;border:1px solid #24123e;border-radius:8px;padding:12px;margin-bottom:14px;">
+              <div style="color:#a855f7;font-size:12px;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #32184a;padding-bottom:8px;margin-bottom:8px;font-weight:700;">Contact Details</div>
+              <table style="width:100%;border-collapse:collapse;color:#cbd5e1;font-size:13px;">
+                ${mvRow("Full Name", name)}
+                ${mvRow("Email", email)}
+                ${mvRow("Phone", phone)}
+                ${mvRow("Business / Company", orgName)}
+                ${mvRow("Project Name", projectTitle)}
+                ${mvRow("Platforms", projectType)}
+              </table>
+            </div>
 
-          <div style="border:1px solid #eef6ff;border-radius:6px;padding:12px;background:#fbfdff;color:#06223a;font-size:13px;white-space:pre-wrap;line-height:1.45;">
-            ${escapeHtml(detailLines)}
+            <div style="background:#0b1020;border:1px solid #24123e;border-radius:8px;padding:12px;">
+              <div style="color:#a855f7;font-size:12px;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #32184a;padding-bottom:8px;margin-bottom:8px;font-weight:700;">Design & Planning</div>
+              <table style="width:100%;border-collapse:collapse;color:#cbd5e1;font-size:13px;">
+                ${mvRow("Has Logo", hasLogo)}
+                ${mvRow("Launch Date", launchDate)}
+                ${mvRow("Budget", budget)}
+              </table>
+            </div>
+          </div>
+
+          <div style="flex:1;">
+            <div style="background:#0b1020;border:1px solid #24123e;border-radius:8px;padding:12px;margin-bottom:14px;">
+              <div style="color:#a855f7;font-size:12px;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #32184a;padding-bottom:8px;margin-bottom:8px;font-weight:700;">Project Overview</div>
+              <table style="width:100%;border-collapse:collapse;color:#cbd5e1;font-size:13px;">
+                ${mvRow("Purpose", purpose)}
+                ${mvRow("Problem It Solves", problemSolved)}
+                ${mvRow("Target Users", targetUsers)}
+              </table>
+            </div>
+
+            <div style="background:#0b1020;border:1px solid #24123e;border-radius:8px;padding:12px;margin-bottom:14px;">
+              <div style="color:#a855f7;font-size:12px;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #32184a;padding-bottom:8px;margin-bottom:8px;font-weight:700;">App Features</div>
+              <table style="width:100%;border-collapse:collapse;color:#cbd5e1;font-size:13px;">
+                ${mvRow("Required Features", features)}
+                ${mvRow("Admin Dashboard", hasAdminDashboard)}
+                ${mvRow("File Upload", hasFileUpload)}
+                ${mvRow("Cloud Storage / DB", needsCloud)}
+              </table>
+            </div>
+
+            <div style="background:#0b1020;border:1px solid #24123e;border-radius:8px;padding:12px;margin-bottom:14px;">
+              <div style="color:#a855f7;font-size:12px;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #32184a;padding-bottom:8px;margin-bottom:8px;font-weight:700;">How The App Works</div>
+              <div style="color:#cbd5e1;font-size:13px;white-space:pre-wrap;">${escapeHtml(howItWorks || "")}</div>
+            </div>
+
+            <div style="background:#0b1020;border:1px solid #24123e;border-radius:8px;padding:12px;">
+              <div style="color:#a855f7;font-size:12px;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #32184a;padding-bottom:8px;margin-bottom:8px;font-weight:700;">Technical Requirements</div>
+              <table style="width:100%;border-collapse:collapse;color:#cbd5e1;font-size:13px;">
+                ${mvRow("Login Types", loginTypes)}
+                ${mvRow("Online / Offline", onlineOffline)}
+                ${mvRow("Notifications", notificationTypes)}
+                ${mvRow("Reference Apps", referenceApps)}
+              </table>
+            </div>
           </div>
         </div>
 
-        <div style="padding:12px 18px;border-top:1px solid #eef6ff;background:#f8fbff;color:#6b7280;font-size:12px;">Submitted via Creative Hub · ${escapeHtml(
+        <div style="padding:12px 18px;border-top:1px solid #24123e;background:#0b0816;color:#8b99a6;font-size:12px;">Submitted via Creative Hub website · ${escapeHtml(
           process.env["CONTACT_TO_EMAIL"] || fallbackContactEmail,
-        )} · ${escapeHtml(new Date().toLocaleString())}</div>
+        )}</div>
       </div>
     `;
   }
