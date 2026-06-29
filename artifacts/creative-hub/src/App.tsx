@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import emailjs from "@emailjs/browser";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   Mail,
@@ -164,6 +165,13 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || "";
 const contactEmail = "creativehub2k@gmail.com";
 const contactPhone = "9786954984";
 const submitTimeoutMs = 15000;
+const emailjsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID?.trim();
+const emailjsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID?.trim();
+const emailjsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY?.trim();
+
+if (emailjsPublicKey) {
+  emailjs.init(emailjsPublicKey);
+}
 
 function buildContactPayload({
   form,
@@ -275,13 +283,39 @@ function buildEmailTemplateParams(
 
 function getContactApiUrl() {
   if (!apiBaseUrl) {
-    return "";
+    return "/api/contact";
   }
 
   return `${apiBaseUrl.replace(/\/$/, "")}/api/contact`;
 }
 
 async function postContactRequest(payload: ReturnType<typeof buildContactPayload>) {
+  if (emailjsServiceId && emailjsTemplateId && emailjsPublicKey) {
+    try {
+      const result = await emailjs.send(
+        emailjsServiceId,
+        emailjsTemplateId,
+        buildEmailTemplateParams(payload),
+      );
+
+      if (result.status >= 200 && result.status < 300) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            queued: false,
+            message: "Your request has been received successfully!",
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+    } catch (error) {
+      console.error("EmailJS submission failed, falling back to API.", error);
+    }
+  }
+
   const contactApiUrl = getContactApiUrl();
   if (!contactApiUrl) {
     throw new Error(
