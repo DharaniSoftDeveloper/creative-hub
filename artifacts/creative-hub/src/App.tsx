@@ -290,12 +290,14 @@ function getContactApiUrl() {
 }
 
 async function postContactRequest(payload: ReturnType<typeof buildContactPayload>) {
+  const emailTemplateParams = buildEmailTemplateParams(payload);
+
   if (emailjsServiceId && emailjsTemplateId && emailjsPublicKey) {
     try {
       const result = await emailjs.send(
         emailjsServiceId,
         emailjsTemplateId,
-        buildEmailTemplateParams(payload),
+        emailTemplateParams,
       );
 
       if (result.status >= 200 && result.status < 300) {
@@ -312,8 +314,48 @@ async function postContactRequest(payload: ReturnType<typeof buildContactPayload
         );
       }
     } catch (error) {
-      console.error("EmailJS submission failed, falling back to API.", error);
+      console.error("EmailJS submission failed, falling back to FormSubmit.", error);
     }
+  }
+
+  try {
+    const formSubmitBody = new URLSearchParams({
+      name: payload.name || "",
+      email: payload.email || "",
+      phone: payload.phone || "",
+      business: payload.orgName || "",
+      subject: `New Project Request: ${payload.projectTitle}`,
+      message: emailTemplateParams.message,
+      _captcha: "false",
+      _template: "table",
+      _subject: `New Project Request: ${payload.projectTitle}`,
+      _replyto: payload.email || "",
+    });
+
+    const formSubmitResponse = await fetch(
+      "https://formsubmit.co/ajax/creativehub2k@gmail.com",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formSubmitBody.toString(),
+      },
+    );
+
+    if (formSubmitResponse.ok) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          queued: false,
+          message: "Your request has been received successfully!",
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  } catch (error) {
+    console.error("FormSubmit submission failed, falling back to API.", error);
   }
 
   const contactApiUrl = getContactApiUrl();
