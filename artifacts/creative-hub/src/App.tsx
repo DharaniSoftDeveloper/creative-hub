@@ -843,15 +843,17 @@ function ProjectForm() {
       {/* Step 4: App Features */}
       <div>
         <StepTitle num="4" label="App Features" />
-        <div className="space-y-7">
-          <div>
-            <label className="block text-sm font-semibold text-muted-foreground mb-3">
-              Select all features you need{" "}
-              <span className="text-xs text-muted-foreground/60">
-                (choose all that apply)
-              </span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.12)]">
+            <div className="mb-5">
+              <p className="text-sm font-semibold text-muted-foreground mb-2">
+                Select all features you need
+              </p>
+              <p className="text-xs text-muted-foreground/60">
+                Choose all that apply. Selected options will be included in your request.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
               {featureOptions.map((feature) => {
                 const active = selectedFeatures.includes(feature);
                 return (
@@ -861,7 +863,7 @@ function ProjectForm() {
                     onClick={() =>
                       toggle(selectedFeatures, setSelectedFeatures, feature)
                     }
-                    className={`px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all duration-200 cursor-pointer ${active ? "border-primary bg-primary/15 text-white shadow-[0_0_12px_rgba(214,176,96,0.24)]" : "border-white/10 bg-white/5 text-muted-foreground hover:border-primary/30 hover:bg-white/10 hover:text-white"}`}
+                    className={`px-4 py-3 rounded-2xl border text-sm font-medium text-left transition-all duration-200 cursor-pointer min-h-[60px] text-start ${active ? "border-primary bg-primary/15 text-white shadow-[0_0_12px_rgba(214,176,96,0.24)]" : "border-white/10 bg-white/5 text-muted-foreground hover:border-primary/30 hover:bg-white/10 hover:text-white"}`}
                   >
                     <span
                       className={`mr-2 ${active ? "text-primary" : "text-muted-foreground/50"}`}
@@ -874,38 +876,64 @@ function ProjectForm() {
               })}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-            <div>
-              <label className="block text-sm font-semibold text-muted-foreground mb-3">
-                Admin Dashboard?
-              </label>
-              <RadioGroup
-                options={["Yes", "No"]}
-                value={form.hasAdminDashboard}
-                onChange={(v) =>
-                  setForm((p) => ({ ...p, hasAdminDashboard: v }))
-                }
-              />
+
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.12)]">
+              <p className="text-sm font-semibold text-muted-foreground mb-4">
+                Technical Support Options
+              </p>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-muted-foreground mb-3">
+                    Admin Dashboard?
+                  </label>
+                  <RadioGroup
+                    options={["Yes", "No"]}
+                    value={form.hasAdminDashboard}
+                    onChange={(v) =>
+                      setForm((p) => ({ ...p, hasAdminDashboard: v }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-muted-foreground mb-3">
+                    Users Upload Photos / Videos / Files?
+                  </label>
+                  <RadioGroup
+                    options={["Yes", "No"]}
+                    value={form.hasFileUpload}
+                    onChange={(v) => setForm((p) => ({ ...p, hasFileUpload: v }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-muted-foreground mb-3">
+                    Need Cloud Storage / Database?
+                  </label>
+                  <RadioGroup
+                    options={["Yes", "No", "Not Sure"]}
+                    value={form.needsCloud}
+                    onChange={(v) => setForm((p) => ({ ...p, needsCloud: v }))}
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-muted-foreground mb-3">
-                Users Upload Photos / Videos / Files?
-              </label>
-              <RadioGroup
-                options={["Yes", "No"]}
-                value={form.hasFileUpload}
-                onChange={(v) => setForm((p) => ({ ...p, hasFileUpload: v }))}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-muted-foreground mb-3">
-                Need Cloud Storage / Database?
-              </label>
-              <RadioGroup
-                options={["Yes", "No", "Not Sure"]}
-                value={form.needsCloud}
-                onChange={(v) => setForm((p) => ({ ...p, needsCloud: v }))}
-              />
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.12)]">
+              <p className="text-sm font-semibold text-muted-foreground mb-4">
+                Selected Features Summary
+              </p>
+              <div className="min-h-[130px] rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-sm text-muted-foreground">
+                {selectedFeatures.length > 0 ? (
+                  <ul className="list-disc list-inside space-y-2">
+                    {selectedFeatures.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground/70">
+                    No features selected yet. Tap on the boxes to add them.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
