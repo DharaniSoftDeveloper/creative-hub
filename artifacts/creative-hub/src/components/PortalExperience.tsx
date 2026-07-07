@@ -101,6 +101,7 @@ function BrandBadge({ compact = false }: { compact?: boolean }) {
 export function PortalExperience({ onBack }: { onBack: () => void }) {
   const [activeTab, setActiveTab] = useState<"client" | "admin">("client");
   const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [adminToken, setAdminToken] = useState<string | null>(null);
   const [authForm, setAuthForm] = useState({ username: "", password: "" });
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
@@ -124,25 +125,8 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
     dailyLogEntries?: string;
   }>({});
 
-  useEffect(() => {
-    const restoreSession = async () => {
-      const token = localStorage.getItem('creativehub-admin-token');
-      if (!token) {
-        return;
-      }
-
-      try {
-        await apiRequest<{ authenticated: boolean; username: string }>('/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setAdminUnlocked(true);
-      } catch {
-        localStorage.removeItem('creativehub-admin-token');
-      }
-    };
-
-    void restoreSession();
-  }, []);
+  // Do not auto-restore or persist admin session across page reloads.
+  // Admin must unlock each time to access admin actions.
 
   useEffect(() => {
     if (!adminUnlocked) {
@@ -180,7 +164,7 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
       });
 
       if (data.authenticated) {
-        localStorage.setItem('creativehub-admin-token', data.token);
+        setAdminToken(data.token);
         setAdminUnlocked(true);
         setAuthForm({ username: '', password: '' });
         setFormMessage('Admin access granted.');
@@ -200,8 +184,8 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
       return;
     }
     try {
-      const token = localStorage.getItem('creativehub-admin-token');
-      const created = await apiRequest<{ project: ProjectRecord }>('/api/projects', {
+      const token = adminToken;
+      const created = await apiRequest<{ project: ProjectRecord }>("/api/projects", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,7 +216,7 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
         setFormMessage('Admin access required.');
         return;
       }
-      const token = localStorage.getItem('creativehub-admin-token');
+      const token = adminToken;
       const updated = await apiRequest<{ project: ProjectRecord }>(`/api/projects/${projectId}`, {
         method: 'PATCH',
         headers: {
@@ -273,7 +257,7 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
         setUploadingProjectId(null);
         return;
       }
-      const token = localStorage.getItem('creativehub-admin-token');
+      const token = adminToken;
       const updated = await apiRequest<{ project: ProjectRecord }>(`/api/projects/${projectId}/upload`, {
         method: 'POST',
         body: formData,
@@ -307,7 +291,7 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
   };
 
   const saveProjectDetails = async (projectId: string) => {
-    const token = localStorage.getItem('creativehub-admin-token');
+    const token = adminToken;
     const body: any = {};
     if (editingForm.progressPercentage !== undefined) body.progressPercentage = Number(editingForm.progressPercentage) || 0;
     if (editingForm.estimatedDeliveryDays !== undefined) body.estimatedDeliveryDays = editingForm.estimatedDeliveryDays ? Number(editingForm.estimatedDeliveryDays) : undefined;
