@@ -115,6 +115,7 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [uploadingProjectId, setUploadingProjectId] = useState<string | null>(null);
   const [updatingProjectId, setUpdatingProjectId] = useState<string | null>(null);
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editingForm, setEditingForm] = useState<{
     progressPercentage?: number;
@@ -232,6 +233,34 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
       setFormMessage(error instanceof Error ? error.message : 'Unable to update status');
     } finally {
       setUpdatingProjectId(null);
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (!adminUnlocked) {
+      setFormMessage('Admin access required.');
+      return;
+    }
+
+    if (!window.confirm('Delete this project permanently? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingProjectId(projectId);
+
+    try {
+      const token = adminToken;
+      await apiRequest(`/api/projects/${projectId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      setProjects((current) => current.filter((project) => project.id !== projectId));
+      setFormMessage(`Project ${projectId} deleted successfully.`);
+    } catch (error) {
+      setFormMessage(error instanceof Error ? error.message : 'Unable to delete project');
+    } finally {
+      setDeletingProjectId(null);
     }
   };
 
@@ -703,6 +732,14 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
                         <input type="file" className="hidden" onChange={(event) => void handleFileUpload(project.id, event.target.files?.[0] || null)} />
                       </label>
                       <Button onClick={() => startEditProject(project)} className="border-white/10 bg-white/5 text-white hover:bg-white/10">Edit details</Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => void handleDeleteProject(project.id)}
+                        disabled={deletingProjectId === project.id}
+                        className="border-white/10 bg-rose-600/20 text-rose-200 hover:bg-rose-600/30"
+                      >
+                        {deletingProjectId === project.id ? "Deleting…" : "Delete"}
+                      </Button>
                       {project.fileUrl ? (
                         <a href={project.fileUrl} download={project.fileName} className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/20">
                           <Download className="h-4 w-4" />

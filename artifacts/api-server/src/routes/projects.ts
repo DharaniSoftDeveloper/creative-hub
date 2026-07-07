@@ -111,16 +111,34 @@ function writeProjects(projects: ProjectRecord[]) {
   try {
     if (dbLib.hasSqlite()) {
       dbLib.initDb();
-      // naive: replace all rows with current array
       const existing = dbLib.allProjects();
       const existingIds = new Set(existing.map((r: any) => r.id));
+      const desiredIds = new Set(projects.map((p) => p.id));
+
       for (const p of projects) {
         if (!existingIds.has(p.id)) {
           dbLib.insertProject(p as any);
         } else {
-          dbLib.updateProject(p.id, { ...p, meta: { progressPercentage: p.progressPercentage, estimatedDeliveryDays: p.estimatedDeliveryDays, timeline: p.timeline, modules: p.modules, dailyLogs: p.dailyLogs, uploads: p.uploads } });
+          dbLib.updateProject(p.id, {
+            ...p,
+            meta: {
+              progressPercentage: p.progressPercentage,
+              estimatedDeliveryDays: p.estimatedDeliveryDays,
+              timeline: p.timeline,
+              modules: p.modules,
+              dailyLogs: p.dailyLogs,
+              uploads: p.uploads,
+            },
+          });
         }
       }
+
+      for (const existingProject of existing) {
+        if (!desiredIds.has(existingProject.id)) {
+          dbLib.deleteProject(existingProject.id);
+        }
+      }
+
       return;
     }
   } catch (e) {
@@ -238,6 +256,19 @@ router.patch("/projects/:projectId", requireAdminAuth, (req, res) => {
   writeProjects(projects);
 
   res.json({ project: nextProject });
+});
+
+router.delete("/projects/:projectId", requireAdminAuth, (req, res) => {
+  const projects = readProjects();
+  const remaining = projects.filter((entry) => entry.id !== req.params.projectId);
+
+  if (remaining.length === projects.length) {
+    res.status(404).json({ error: "Project not found." });
+    return;
+  }
+
+  writeProjects(remaining);
+  res.json({ deleted: true, projectId: req.params.projectId });
 });
 
 router.post("/projects/:projectId/upload", requireAdminAuth, upload.single("file"), (req, res) => {

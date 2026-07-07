@@ -123,3 +123,11 @@ export function updateProject(id: string, updates: any) {
   stmt.run(merged.projectName, merged.clientName, merged.clientEmail, merged.description, merged.status, merged.notes, merged.updatedAt, serializeMeta(meta), id);
   return getProject(id);
 }
+
+export function deleteProject(id: string) {
+  if (!Database) return false;
+  initDb();
+  const stmt = db.prepare('DELETE FROM projects WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
