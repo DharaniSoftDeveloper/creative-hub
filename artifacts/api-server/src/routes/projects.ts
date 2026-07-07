@@ -244,4 +244,40 @@ router.post("/projects/import-seed", requireAdminAuth, (req, res) => {
   }
 });
 
+// Admin debug: report runtime vs repo seed file status (helpful to diagnose persistence)
+router.get('/projects/debug/files', requireAdminAuth, (req, res) => {
+  try {
+    const repoSeed = path.resolve(process.cwd(), 'artifacts', 'api-server', 'submissions', 'projects.json');
+    const data = { dataFile, dataFileExists: false, dataFileStat: null, repoSeed, repoSeedExists: false, repoSeedStat: null } as any;
+
+    try {
+      if (fs.existsSync(dataFile)) {
+        data.dataFileExists = true;
+        const s = fs.statSync(dataFile);
+        data.dataFileStat = { size: s.size, mtime: s.mtime.toISOString() };
+      }
+    } catch (e) {
+      // ignore stat errors
+    }
+
+    try {
+      if (fs.existsSync(repoSeed)) {
+        data.repoSeedExists = true;
+        const s2 = fs.statSync(repoSeed);
+        data.repoSeedStat = { size: s2.size, mtime: s2.mtime.toISOString() };
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // include current in-memory projects count
+    const current = readProjects();
+    data.runtimeProjects = Array.isArray(current) ? current.length : 0;
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 export default router;
