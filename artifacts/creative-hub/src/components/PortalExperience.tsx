@@ -63,7 +63,13 @@ const statusClasses: Record<ProjectStatus, string> = {
 };
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, init);
+  // Support deploy-time API base URL (Render / production). When `VITE_API_BASE_URL` is set,
+  // prefix `/api` requests with that host so the SPA talks to the API service.
+  const envBase = (import.meta.env && (import.meta.env.VITE_API_BASE_URL as string)) || '';
+  const base = envBase.replace(/\/$/, '');
+  const url = path.startsWith('/api') && base ? `${base}${path}` : path;
+
+  const response = await fetch(url, init);
   let data: any = {};
   try {
     data = await response.json();
