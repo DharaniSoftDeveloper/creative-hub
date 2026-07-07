@@ -8,9 +8,11 @@ import { requireAdminAuth } from "./auth";
 
 const router = Router();
 
-const dataDir = path.resolve(process.cwd(), "submissions");
+// Allow overriding storage directory with an environment variable for persistent mounts (e.g. Render Persistent Disk)
+const persistentDir = process.env.PERSISTENT_DATA_DIR ? path.resolve(process.env.PERSISTENT_DATA_DIR) : null;
+const dataDir = persistentDir || path.resolve(process.cwd(), "submissions");
 const dataFile = path.join(dataDir, "projects.json");
-const uploadDir = path.resolve(process.cwd(), "uploads");
+const uploadDir = persistentDir ? path.join(persistentDir, 'uploads') : path.resolve(process.cwd(), "uploads");
 
 try {
   fs.mkdirSync(dataDir, { recursive: true });

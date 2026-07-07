@@ -11,7 +11,8 @@ try {
   Database = null;
 }
 
-const dbDir = path.resolve(process.cwd(), 'data');
+const persistentDir = process.env.PERSISTENT_DATA_DIR ? path.resolve(process.env.PERSISTENT_DATA_DIR) : null;
+const dbDir = persistentDir || path.resolve(process.cwd(), 'data');
 const dbFile = process.env['DATABASE_PATH'] || path.join(dbDir, 'projects.db');
 
 if (!fs.existsSync(dbDir)) {
