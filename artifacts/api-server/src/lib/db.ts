@@ -1,15 +1,24 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-let Database: any;
-try {
-  // better-sqlite3 is optional; require at runtime so deployments without native build won't fail during install
-  // If not available, callers should fallback to file JSON writes.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  Database = require('better-sqlite3');
-} catch (e) {
-  Database = null;
+let Database: any = null;
+
+function tryLoadDatabase() {
+  const sqliteEnabled = Boolean(process.env['ENABLE_SQLITE'] || process.env['DATABASE_PATH']);
+  if (!sqliteEnabled || process.env['DISABLE_SQLITE'] === '1') {
+    return null;
+  }
+
+  try {
+    // better-sqlite3 is optional and should only be loaded when explicitly enabled.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require('better-sqlite3');
+  } catch {
+    return null;
+  }
 }
+
+Database = tryLoadDatabase();
 
 const persistentDir = process.env.PERSISTENT_DATA_DIR ? path.resolve(process.env.PERSISTENT_DATA_DIR) : null;
 const dbDir = persistentDir || path.resolve(process.cwd(), 'data');
