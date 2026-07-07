@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import * as dbLib from "../lib/db";
 import { Router } from "express";
 import multer from "multer";
 import nodemailer from "nodemailer";
@@ -56,13 +57,39 @@ const upload = multer({
 });
 
 function readProjects(): ProjectRecord[] {
+  // Prefer DB if available
+  try {
+    if (dbLib.hasSqlite()) {
+      dbLib.initDb();
+      const rows = dbLib.allProjects();
+      return rows.map((r: any) => ({
+        id: r.id,
+        projectName: r.projectName,
+        clientName: r.clientName,
+        clientEmail: r.clientEmail,
+        description: r.description,
+        status: r.status,
+        notes: r.notes,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+        progressPercentage: r.meta?.progressPercentage,
+        estimatedDeliveryDays: r.meta?.estimatedDeliveryDays,
+        timeline: r.meta?.timeline,
+        modules: r.meta?.modules,
+        dailyLogs: r.meta?.dailyLogs,
+        uploads: r.meta?.uploads,
+      } as ProjectRecord));
+    }
+  } catch (e) {
+    // fallback to JSON file
+  }
+
   try {
     const raw = fs.readFileSync(dataFile, "utf8");
     const parsed = JSON.parse(raw) as { projects?: ProjectRecord[] };
     return Array.isArray(parsed.projects) ? parsed.projects : [];
   } catch {
-    // If runtime data file is missing or unreadable (common on freshly deployed environments),
-    // attempt to load a seed file that may be present in the repository.
+    // attempt to load repo seed
     try {
       const repoSeed = path.resolve(process.cwd(), "artifacts", "api-server", "submissions", "projects.json");
       if (fs.existsSync(repoSeed)) {
@@ -78,6 +105,26 @@ function readProjects(): ProjectRecord[] {
 }
 
 function writeProjects(projects: ProjectRecord[]) {
+  // If DB available, mirror into DB
+  try {
+    if (dbLib.hasSqlite()) {
+      dbLib.initDb();
+      // naive: replace all rows with current array
+      const existing = dbLib.allProjects();
+      const existingIds = new Set(existing.map((r: any) => r.id));
+      for (const p of projects) {
+        if (!existingIds.has(p.id)) {
+          dbLib.insertProject(p as any);
+        } else {
+          dbLib.updateProject(p.id, { ...p, meta: { progressPercentage: p.progressPercentage, estimatedDeliveryDays: p.estimatedDeliveryDays, timeline: p.timeline, modules: p.modules, dailyLogs: p.dailyLogs, uploads: p.uploads } });
+        }
+      }
+      return;
+    }
+  } catch (e) {
+    // fallback to file
+  }
+
   fs.writeFileSync(dataFile, JSON.stringify({ projects }, null, 2));
 }
 
