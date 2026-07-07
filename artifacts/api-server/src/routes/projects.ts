@@ -61,6 +61,18 @@ function readProjects(): ProjectRecord[] {
     const parsed = JSON.parse(raw) as { projects?: ProjectRecord[] };
     return Array.isArray(parsed.projects) ? parsed.projects : [];
   } catch {
+    // If runtime data file is missing or unreadable (common on freshly deployed environments),
+    // attempt to load a seed file that may be present in the repository.
+    try {
+      const repoSeed = path.resolve(process.cwd(), "artifacts", "api-server", "submissions", "projects.json");
+      if (fs.existsSync(repoSeed)) {
+        const raw = fs.readFileSync(repoSeed, "utf8");
+        const parsed = JSON.parse(raw) as { projects?: ProjectRecord[] };
+        return Array.isArray(parsed.projects) ? parsed.projects : [];
+      }
+    } catch {
+      // ignore
+    }
     return [];
   }
 }
