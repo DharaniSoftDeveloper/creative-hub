@@ -195,7 +195,10 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
   const handleCreateProject = async (event: React.FormEvent) => {
     event.preventDefault();
     setFormMessage(null);
-
+    if (!adminUnlocked) {
+      setFormMessage('Admin access required. Unlock the admin dashboard first.');
+      return;
+    }
     try {
       const token = localStorage.getItem('creativehub-admin-token');
       const created = await apiRequest<{ project: ProjectRecord }>('/api/projects', {
@@ -225,6 +228,10 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
   const handleStatusChange = async (projectId: string, nextStatus: ProjectStatus) => {
     setUpdatingProjectId(projectId);
     try {
+      if (!adminUnlocked) {
+        setFormMessage('Admin access required.');
+        return;
+      }
       const token = localStorage.getItem('creativehub-admin-token');
       const updated = await apiRequest<{ project: ProjectRecord }>(`/api/projects/${projectId}`, {
         method: 'PATCH',
@@ -261,6 +268,11 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
     formData.append('type', type);
 
     try {
+      if (!adminUnlocked) {
+        setFormMessage('Admin access required.');
+        setUploadingProjectId(null);
+        return;
+      }
       const token = localStorage.getItem('creativehub-admin-token');
       const updated = await apiRequest<{ project: ProjectRecord }>(`/api/projects/${projectId}/upload`, {
         method: 'POST',
@@ -331,6 +343,10 @@ export function PortalExperience({ onBack }: { onBack: () => void }) {
     }
 
     try {
+      if (!adminUnlocked) {
+        setFormMessage('Admin access required.');
+        return;
+      }
       setUpdatingProjectId(projectId);
       const updated = await apiRequest<{ project: ProjectRecord }>(`/api/projects/${projectId}`, {
         method: 'PATCH',
