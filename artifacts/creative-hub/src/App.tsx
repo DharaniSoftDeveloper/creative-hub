@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PortalExperience } from "@/components/PortalExperience";
 const logoImg = "/logo.png";
 
 const fadeIn = {
@@ -1164,6 +1165,7 @@ function Home() {
   const { scrollYProgress } = useScroll();
   const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showPortal, setShowPortal] = useState(false);
 
   const handleNavClick = (id: string) => {
     setMobileMenuOpen(false);
@@ -1216,6 +1218,13 @@ function Home() {
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <Button
+            onClick={() => setShowPortal(true)}
+            variant="outline"
+            className="hidden sm:inline-flex border-primary/25 bg-primary/10 text-primary hover:bg-primary/20"
+          >
+            Open Portal
+          </Button>
+          <Button
             onClick={() => handleNavClick("request")}
             className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:opacity-90 text-[#17120d] shadow-[0_0_20px_rgba(214,176,96,0.24)] border-none"
           >
@@ -1264,6 +1273,16 @@ function Home() {
                 </button>
               ))}
               <Button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowPortal(true);
+                }}
+                variant="outline"
+                className="mt-2 w-full border-primary/25 bg-primary/10 text-primary hover:bg-primary/20"
+              >
+                Open Portal
+              </Button>
+              <Button
                 onClick={() => handleNavClick("request")}
                 className="mt-2 w-full bg-gradient-to-r from-primary to-accent text-[#17120d] border-none"
               >
@@ -1274,6 +1293,9 @@ function Home() {
         </>
       )}
 
+      {showPortal ? (
+        <PortalExperience onBack={() => setShowPortal(false)} />
+      ) : (
       <main className="relative z-10 pt-20 sm:pt-24">
         {/* Hero Section */}
         <section className="relative min-h-[100svh] md:min-h-[92vh] flex items-center justify-center px-4 sm:px-6 py-16 sm:py-20 overflow-hidden">
@@ -1667,6 +1689,7 @@ function Home() {
           </div>
         </footer>
       </main>
+      )}
     </div>
   );
 }
