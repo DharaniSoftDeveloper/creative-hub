@@ -224,4 +224,24 @@ router.post("/projects/:projectId/upload", requireAdminAuth, upload.single("file
   res.json({ project: updatedProject });
 });
 
+// Admin helper: import seed projects from repository into runtime submissions
+router.post("/projects/import-seed", requireAdminAuth, (req, res) => {
+  try {
+    const repoSeed = path.resolve(process.cwd(), "artifacts", "api-server", "submissions", "projects.json");
+    if (!fs.existsSync(repoSeed)) {
+      res.status(404).json({ error: "Seed file not found in repo." });
+      return;
+    }
+
+    const raw = fs.readFileSync(repoSeed, "utf8");
+    const parsed = JSON.parse(raw) as { projects?: ProjectRecord[] };
+    const projects = Array.isArray(parsed.projects) ? parsed.projects : [];
+    writeProjects(projects);
+
+    res.json({ imported: projects.length });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 export default router;
